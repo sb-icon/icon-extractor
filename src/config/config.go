@@ -9,6 +9,16 @@ import (
 type configType struct {
 	Name        string `envconfig:"NAME" required:"false" default:"icon-go-etl"`
 	NetworkName string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
+
+	// Logging
+	LogLevel         string `envconfig:"LOG_LEVEL" required:"false" default:"INFO"`
+	LogToFile        bool   `envconfig:"LOG_TO_FILE" required:"false" default:"false"`
+	LogFileName      string `envconfig:"LOG_FILE_NAME" required:"false" default:"etl.log"`
+	LogFormat        string `envconfig:"LOG_FORMAT" required:"false" default:"json"`
+	LogIsDevelopment bool   `envconfig:"LOG_IS_DEVELOPMENT" required:"false" default:"true"`
+
+	// Icon node service
+	IconNodeServiceURL string `envconfig:"ICON_NODE_SERVICE_URL" required:"false" default:"https://ctz.solidwallet.io/api/v3"`
 }
 
 // Config - runtime config struct
