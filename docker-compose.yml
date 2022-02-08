@@ -1,0 +1,15 @@
+version: "3.7"
+
+x-env: &env
+  NAME: "blocks"
+  NETWORK_NAME: "mainnet"
+
+services:
+  etl:
+    build:
+      context: .
+      target: prod
+      args:
+        - SERVICE_NAME=etl
+    environment:
+      <<: *env
