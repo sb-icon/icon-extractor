@@ -1,0 +1,47 @@
+syntax = "proto3";
+package models;
+option go_package = "./models";
+
+message BlockETL {
+
+  int64 number = 1;
+  string hash = 2;
+  string merkle_root_hash = 3;
+  string peer_id = 4;
+  string signature = 5;
+  int64 timestamp = 6;
+  string version = 7;
+
+  repeated TransactionETL transactions = 8;
+}
+
+message TransactionETL {
+
+  string hash = 1;
+  int64 timestamp = 2;
+  int64 transaction_index = 3;
+  string nonce = 4;
+  string nid = 5;
+  string from_address = 6;
+  string to_address = 7;
+  string value = 8;
+  string status = 9;
+  string step_price = 10;
+  string step_used = 11;
+  string step_limit = 12;
+  string cumulative_step_used = 13;
+  string logs_bloom = 14;
+  string data = 15;
+  string data_type = 16;
+  string score_address = 17;
+  string signature = 18;
+  string version = 19;
+
+  repeated LogETL logs = 20;
+}
+
+message LogETL {
+  string address = 1;
+  repeated string indexed = 2;
+  repeated string data = 3;
+}
