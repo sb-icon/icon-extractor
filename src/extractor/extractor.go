@@ -5,17 +5,13 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/geometry-labs/icon-go-etl/transformer"
 	"github.com/geometry-labs/icon-go-etl/utils"
 )
 
 type Extractor struct {
 	blockNumberQueue  chan int64
 	blockNumberCommit chan int64
-}
-
-type ExtractedMessage struct {
-	Block        interface{}
-	Transactions []interface{}
 }
 
 func (e Extractor) Start() {
@@ -38,7 +34,7 @@ func (e Extractor) start() {
 			/////////////////////////
 			// Sent to transformer //
 			/////////////////////////
-			extractedMessage := ExtractedMessage{}
+			rawMessage := transformer.RawMessage{}
 
 			///////////////
 			// Get block //
@@ -56,7 +52,7 @@ func (e Extractor) start() {
 				time.Sleep(1 * time.Second)
 				continue
 			}
-			extractedMessage.Block = blockRaw
+			rawMessage.Block = blockRaw
 
 			////////////////////////////////
 			// Extract transaction hashes //
@@ -84,7 +80,7 @@ func (e Extractor) start() {
 					break
 				}
 
-				extractedMessage.Transactions = append(extractedMessage.Transactions, transactionRaw)
+				rawMessage.Transactions = append(rawMessage.Transactions, transactionRaw)
 			}
 			if err != nil {
 				zap.S().Warn(
@@ -103,8 +99,7 @@ func (e Extractor) start() {
 			/////////////////////////
 			// Send to transformer //
 			/////////////////////////
-			// TODO
-			zap.S().Info(extractedMessage)
+			transformer.RawMessageChannel <- rawMessage
 
 			// Success
 			break
