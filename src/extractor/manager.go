@@ -4,10 +4,16 @@ import "go.uber.org/zap"
 
 func StartManager() {
 
-	go startManager()
+	go startManager(1)
+	go startManager(40000000)
+	go startManager(30000000)
+	go startManager(20000000)
+	go startManager(10000000)
+	go startManager(9000000)
+	go startManager(8000000)
 }
 
-func startManager() {
+func startManager(blockNumber int64) {
 
 	extractorQueueChannel := make(chan int64)
 	extractorCommitChannel := make(chan int64)
@@ -18,7 +24,6 @@ func startManager() {
 	}
 	extractor.Start()
 
-	blockNumber := int64(1)
 	for {
 		extractorQueueChannel <- blockNumber
 

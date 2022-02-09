@@ -13,6 +13,11 @@ type Extractor struct {
 	blockNumberCommit chan int64
 }
 
+type ExtractedMessage struct {
+	Block        interface{}
+	Transactions []interface{}
+}
+
 func (e Extractor) Start() {
 
 	go e.start()
@@ -33,7 +38,7 @@ func (e Extractor) start() {
 			/////////////////////////
 			// Sent to transformer //
 			/////////////////////////
-			extractedObjects := []interface{}{}
+			extractedMessage := ExtractedMessage{}
 
 			///////////////
 			// Get block //
@@ -51,7 +56,7 @@ func (e Extractor) start() {
 				time.Sleep(1 * time.Second)
 				continue
 			}
-			extractedObjects = append(extractedObjects, blockRaw)
+			extractedMessage.Block = blockRaw
 
 			////////////////////////////////
 			// Extract transaction hashes //
@@ -79,7 +84,7 @@ func (e Extractor) start() {
 					break
 				}
 
-				extractedObjects = append(extractedObjects, transactionRaw)
+				extractedMessage.Transactions = append(extractedMessage.Transactions, transactionRaw)
 			}
 			if err != nil {
 				zap.S().Warn(
@@ -99,7 +104,7 @@ func (e Extractor) start() {
 			// Send to transformer //
 			/////////////////////////
 			// TODO
-			zap.S().Info(extractedObjects)
+			zap.S().Info(extractedMessage)
 
 			// Success
 			break
