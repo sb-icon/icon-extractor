@@ -4,6 +4,12 @@ x-env: &env
   NAME: "blocks"
   NETWORK_NAME: "mainnet"
 
+  LOG_LEVEL: "DEBUG"
+  LOG_TO_FILE: "false"
+  LOG_FILE_NAME: ""
+  LOG_FORMAT: "console"
+  LOG_IS_DEVELOPMENT: "true"
+
 services:
   etl:
     build:

@@ -5,8 +5,8 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/geometry-labs/icon-go-etl/service"
 	"github.com/geometry-labs/icon-go-etl/transformer"
-	"github.com/geometry-labs/icon-go-etl/utils"
 )
 
 type Extractor struct {
@@ -39,7 +39,7 @@ func (e Extractor) start() {
 			///////////////
 			// Get block //
 			///////////////
-			blockRaw, err := utils.IconNodeServiceGetBlockByHeight(blockNumber)
+			blockRaw, err := service.IconNodeServiceGetBlockByHeight(blockNumber)
 			if err != nil {
 				zap.S().Warn(
 					"Routine=", "Extractor, ",
@@ -52,30 +52,20 @@ func (e Extractor) start() {
 				time.Sleep(1 * time.Second)
 				continue
 			}
-			rawMessage.Block = blockRaw
-
-			////////////////////////////////
-			// Extract transaction hashes //
-			////////////////////////////////
-			transactionHashes, err := utils.IconNodeServiceExtractTransactionHashesFromBlock(blockRaw)
-			if err != nil {
-				zap.S().Warn(
-					"Routine=", "Extractor, ",
-					"Step=", "Extract transaction hashes, ",
-					"BlockNumber=", blockNumber, ", ",
-					"Error=", err.Error(),
-					" - Retrying in 1 second...",
-				)
-
-				time.Sleep(1 * time.Second)
-				continue
-			}
+			rawMessage.Block = *blockRaw
 
 			//////////////////////
 			// Get transactions //
 			//////////////////////
-			for _, transactionHash := range transactionHashes {
-				transactionRaw, err := utils.IconNodeServiceGetTransactionByHash(transactionHash)
+			for _, transaction := range blockRaw.ConfirmedTransactionList {
+				transactionHash := ""
+				if transaction.TxHashV1 != "" {
+					transactionHash = transaction.TxHashV1
+				} else if transaction.TxHashV3 != "" {
+					transactionHash = transaction.TxHashV3
+				}
+
+				transactionRaw, err := service.IconNodeServiceGetTransactionByHash(transactionHash)
 				if err != nil {
 					break
 				}
@@ -87,7 +77,6 @@ func (e Extractor) start() {
 					"Routine=", "Extractor, ",
 					"Step=", "Get Transactions, ",
 					"BlockNumber=", blockNumber, ", ",
-					"TransactionHashes=", transactionHashes, ", ",
 					"Error=", err.Error(),
 					" - Retrying in 1 second...",
 				)
