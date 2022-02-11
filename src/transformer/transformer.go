@@ -2,21 +2,18 @@ package transformer
 
 import (
 	"encoding/json"
+	"strconv"
 
+	"github.com/geometry-labs/icon-go-etl/models"
 	"github.com/geometry-labs/icon-go-etl/service"
 	"go.uber.org/zap"
 )
 
-type RawMessage struct {
-	Block        service.IconNodeResponseGetBlockByHeight
-	Transactions []interface{}
-}
-
-var RawMessageChannel chan RawMessage
+var RawBlockChannel chan service.IconNodeResponseGetBlockByHeight
 
 func StartTransformer() {
 
-	RawMessageChannel = make(chan RawMessage)
+	RawBlockChannel = make(chan service.IconNodeResponseGetBlockByHeight)
 
 	go startTransformer()
 }
@@ -25,187 +22,134 @@ func startTransformer() {
 
 	for {
 
+		///////////////
+		// Raw Block //
+		///////////////
+		rawBlock := <-RawBlockChannel
+		block := models.BlockETL{}
+
 		/////////////////
-		// Raw Message //
+		// Parse Block //
 		/////////////////
-		rawMessage := <-RawMessageChannel
 
-		// block := models.BlockETL{}
+		// Number
+		block.Number = rawBlock.Height
 
-		/*
-			/////////////////
-			// Parse Block //
-			/////////////////
-			rawBlock, _ := rawMessage.Block.(map[string]interface{})
+		// Hash
+		block.Hash = rawBlock.BlockHash
 
-			// Number
-			if blockNumber, ok := rawBlock["height"]; ok {
-				block.Number, _ = int64(blockNumber.(float64))
-			}
+		// Parent Hash
+		block.ParentHash = rawBlock.PrevBlockHash
+
+		// Merkle Root Hash
+		block.MerkleRootHash = rawBlock.MerkleTreeRootHash
+
+		// Peer ID
+		block.PeerId = rawBlock.PeerId
+
+		// Signature
+		block.Signature = rawBlock.Signature
+
+		// Timestamp
+		block.Timestamp = rawBlock.Timestamp
+
+		// Version
+		block.Version = rawBlock.Version
+
+		////////////////////////
+		// Parse Transactions //
+		////////////////////////
+
+		// NOTE Some transaction data is in the block struct
+		// NOTE This assumes that the transactions in the block
+		// struct are in the same order as the transactions array
+		for i, rawTransaction := range rawBlock.ConfirmedTransactionList {
+			block.Transactions = append(block.Transactions, &models.TransactionETL{})
 
 			// Hash
-			if blockHash, ok := rawBlock["block_hash"]; ok {
-				block.Hash, _ = blockHash.(string)
-			}
-
-			// Parent Hash
-			if blockParentHash, ok := rawBlock["prev_block_hash"]; ok {
-				block.ParentHash, _ = blockParentHash.(string)
-			}
-
-			// Merkle Root Hash
-			if blockMerkleRootHash, ok := rawBlock["merkle_tree_root_hash"]; ok {
-				block.MerkleRootHash, _ = blockMerkleRootHash.(string)
-			}
-
-			// Peer ID
-			if blockPeerId, ok := rawBlock["peer_id"]; ok {
-				block.PeerId, _ = blockPeerId.(string)
-			}
-
-			// Signature
-			if blockSignature, ok := rawBlock["signature"]; ok {
-				block.Signature, _ = blockSignature.(string)
-			}
+			block.Transactions[i].Hash = rawTransaction.TransactionReceipt.TxHash
 
 			// Timestamp
-			if blockTimestamp, ok := rawBlock["time_stamp"]; ok {
-				block.Timestamp = int64(blockTimestamp.(float64))
+			if rawTransaction.Timestamp != "" {
+				transactionTimestamp, _ := strconv.ParseInt(rawTransaction.Timestamp[2:], 16, 64)
+				block.Transactions[i].Timestamp = transactionTimestamp
 			}
+
+			// Transaction Index
+			if rawTransaction.TransactionReceipt.TxIndex != "" {
+				transactionIndex, _ := strconv.ParseInt(rawTransaction.TransactionReceipt.TxIndex[2:], 16, 64)
+				block.Transactions[i].TransactionIndex = transactionIndex
+			}
+
+			// Nonce
+			block.Transactions[i].Nonce = rawTransaction.Nonce
+
+			// Nid
+			block.Transactions[i].Nid = rawTransaction.Nid
+
+			// From Address
+			block.Transactions[i].FromAddress = rawTransaction.FromAddress
+
+			// To Address
+			block.Transactions[i].ToAddress = rawTransaction.ToAddress
+
+			// Value
+			// NOTE leave value as string, hex can get really large
+			block.Transactions[i].Value = rawTransaction.Value
+
+			// Status
+			block.Transactions[i].Status = rawTransaction.TransactionReceipt.Status
+
+			// Step Price
+			block.Transactions[i].StepPrice = rawTransaction.TransactionReceipt.StepPrice
+
+			// Step Used
+			block.Transactions[i].StepUsed = rawTransaction.TransactionReceipt.StepUsed
+
+			// Step Limit
+			block.Transactions[i].StepLimit = rawTransaction.StepLimit
+
+			// Step Limit
+			block.Transactions[i].CumulativeStepUsed = rawTransaction.TransactionReceipt.CumulativeStepUsed
+
+			// Logs Bloom
+			block.Transactions[i].LogsBloom = rawTransaction.TransactionReceipt.LogsBloom
+
+			// Data
+			if rawTransaction.Data != nil {
+				transactionDataString, _ := json.Marshal(&rawTransaction.Data)
+				block.Transactions[i].Data = string(transactionDataString)
+			}
+
+			// Data Type
+			block.Transactions[i].DataType = rawTransaction.DataType
+
+			// Score Address
+			block.Transactions[i].ScoreAddress = rawTransaction.TransactionReceipt.ToAddress
+
+			// Signature
+			block.Transactions[i].Signature = rawTransaction.Signature
 
 			// Version
-			if blockVersion, ok := rawBlock["version"]; ok {
-				block.Version, _ = blockVersion.(string)
-			}
+			block.Transactions[i].Version = rawTransaction.Version
+		}
 
-			////////////////////////
-			// Parse Transactions //
-			////////////////////////
+		////////////////
+		// Parse Logs //
+		////////////////
+		// TODO
 
-			// NOTE Some transaction data is in the block struct
-			// NOTE This assumes that the transactions in the block
-			// struct are in the same order as the transactions array
-			var rawBlockTransactions []map[string]interface{}
-			if rawTXs, ok := rawBlock["confirmed_transaction_list"]; ok {
-				rawBlockTXs, ok := rawTXs.([]interface{})
-				if ok == false {
-					// TODO DLQ
-				}
+		/////////////////
+		// Verify Data //
+		/////////////////
+		// TODO look into proto field assertions
+		// TODO DLQ
 
-				for _, rawTX := range rawBlockTXs {
-					rawBlockTransaction, ok := rawTX.(map[string]interface{})
-					if ok == false {
-						continue
-					}
-					rawBlockTransactions = append(rawBlockTransactions, rawBlockTransaction)
-				}
-
-				if len(rawBlockTransactions) != len(rawMessage.Transactions) {
-					// TODO DLQ
-				}
-			}
-
-			for _, rawTransactionInterface := range rawMessage.Transactions {
-				rawTransaction, _ := rawTransactionInterface.(map[string]interface{})
-
-				block.Transactions = append(block.Transactions, models.TransactionETL{})
-				i := len(block.Transactions) - 1
-
-				// Hash
-				if transactionHash, ok := rawTransaction["txHash"]; ok {
-					block.Transactions[i].Hash = transactionHash.(string)
-				}
-
-				// Timestamp
-				if transactionTimestamp, ok := rawBlockTransactions[i]["timestamp"]; ok {
-					// Hex -> int64
-					transactionTimestampString, _ := transactionTimestamp.(string)
-					transactionTimestampInt, _ := strconv.ParseInt(transactionTimestampString[2:], 16, 64)
-
-					block.Transactions[i].Timestamp = transactionTimestampInt
-				}
-
-				// Transaction Index
-				if transactionIndex, ok := rawTransaction["txIndex"]; ok {
-					// Hex -> int64
-					transactionIndexString, _ := transactionIndex.(string)
-					transactionIndexInt, _ := strconv.ParseInt(transactionIndexString[2:], 16, 64)
-
-					block.Transactions[i].TransactionIndex = transactionIndexInt
-				}
-
-				// Nonce
-				if transactionNonce, ok := rawBlockTransactions[i]["nonce"]; ok {
-					block.Transactions[i].Nonce, _ = transactionNonce.(string)
-				}
-
-				// Nid
-				if transactionNid, ok := rawBlockTransactions[i]["nid"]; ok {
-					block.Transactions[i].Nid, _ = transactionNid.(string)
-				}
-
-				// From Address
-				if transactionFromAddress, ok := rawBlockTransactions[i]["from"]; ok {
-					block.Transactions[i].FromAddress, _ = transactionFromAddress.(string)
-				}
-
-				// To Address
-				if transactionToAddress, ok := rawBlockTransactions[i]["to"]; ok {
-					block.Transactions[i].ToAddress, _ = transactionToAddress.(string)
-				}
-
-				// Value
-				if transactionValue, ok := rawBlockTransactions[i]["value"]; ok {
-					block.Transactions[i].Value, _ = transactionValue.(string)
-				}
-
-				// Status
-				if transactionStatus, ok := rawTransaction["status"]; ok {
-					block.Transactions[i].Status, _ = transactionStatus.(string)
-				}
-
-				// Step Price
-				if transactionStepPrice, ok := rawTransaction["step_price"]; ok {
-					block.Transactions[i].StepPrice, _ = transactionStepPrice.(string)
-				}
-
-				// Step Used
-				if transactionStepUsed, ok := rawTransaction["step_used"]; ok {
-					block.Transactions[i].StepUsed, _ = transactionStepUsed.(string)
-				}
-
-				// Step Limit
-				if transactionStepLimit, ok := rawTransaction["step_limit"]; ok {
-					block.Transactions[i].StepLimit, _ = transactionStepLimit.(string)
-				}
-
-				// Cumulative Step Used
-				if transactionCumulativeStepUsed, ok := rawTransaction["cumulative_step_used"]; ok {
-					block.Transactions[i].CumulativeStepUsed, _ = transactionCumulativeStepUsed.(string)
-				}
-
-				// Logs Bloom
-				if transactionLogsBloom, ok := rawTransaction["logs_bloom"]; ok {
-					block.Transactions[i].LogsBloom, _ = transactionLogsBloom.(string)
-				}
-			}
-
-			////////////////
-			// Parse Logs //
-			////////////////
-			// TODO
-
-			/////////////////
-			// Verify Data //
-			/////////////////
-			// TODO
-
-			///////////////////
-			// Send to Kafka //
-			///////////////////
-			// TODO
-		*/
-		b, _ := json.Marshal(&rawMessage)
+		///////////////////
+		// Send to Kafka //
+		///////////////////
+		// TODO
+		b, _ := json.Marshal(&block)
 		zap.S().Info(string(b))
 	}
 }

@@ -6,12 +6,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/geometry-labs/icon-go-etl/service"
-	"github.com/geometry-labs/icon-go-etl/transformer"
 )
 
 type Extractor struct {
 	blockNumberQueue  chan int64
 	blockNumberCommit chan int64
+
+	blockOutput chan service.IconNodeResponseGetBlockByHeight
 }
 
 func (e Extractor) Start() {
@@ -31,15 +32,11 @@ func (e Extractor) start() {
 		// NOTE continue on failure
 		for {
 
-			/////////////////////////
-			// Sent to transformer //
-			/////////////////////////
-			rawMessage := transformer.RawMessage{}
-
 			///////////////
 			// Get block //
 			///////////////
-			blockRaw, err := service.IconNodeServiceGetBlockByHeight(blockNumber)
+			// NOTE rawBlock is sent to transformer
+			rawBlock, err := service.IconNodeServiceGetBlockByHeight(blockNumber)
 			if err != nil {
 				zap.S().Warn(
 					"Routine=", "Extractor, ",
@@ -52,25 +49,25 @@ func (e Extractor) start() {
 				time.Sleep(1 * time.Second)
 				continue
 			}
-			rawMessage.Block = *blockRaw
 
 			//////////////////////
 			// Get transactions //
 			//////////////////////
-			for _, transaction := range blockRaw.ConfirmedTransactionList {
+			for i, transaction := range rawBlock.ConfirmedTransactionList {
 				transactionHash := ""
 				if transaction.TxHashV1 != "" {
-					transactionHash = transaction.TxHashV1
+					transactionHash = "0x" + transaction.TxHashV1
 				} else if transaction.TxHashV3 != "" {
 					transactionHash = transaction.TxHashV3
 				}
 
-				transactionRaw, err := service.IconNodeServiceGetTransactionByHash(transactionHash)
+				var transactionRaw *service.IconNodeResponseGetTransactionByHash
+				transactionRaw, err = service.IconNodeServiceGetTransactionByHash(transactionHash)
 				if err != nil {
 					break
 				}
 
-				rawMessage.Transactions = append(rawMessage.Transactions, transactionRaw)
+				rawBlock.ConfirmedTransactionList[i].TransactionReceipt = *transactionRaw
 			}
 			if err != nil {
 				zap.S().Warn(
@@ -88,7 +85,7 @@ func (e Extractor) start() {
 			/////////////////////////
 			// Send to transformer //
 			/////////////////////////
-			transformer.RawMessageChannel <- rawMessage
+			e.blockOutput <- *rawBlock
 
 			// Success
 			break

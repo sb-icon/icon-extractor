@@ -1,10 +1,13 @@
 package extractor
 
-import "go.uber.org/zap"
+import (
+	"github.com/geometry-labs/icon-go-etl/transformer"
+	"go.uber.org/zap"
+)
 
 func StartManager() {
 
-	go startManager(40000000)
+	go startManager(1)
 }
 
 func startManager(blockNumber int64) {
@@ -15,6 +18,7 @@ func startManager(blockNumber int64) {
 	extractor := Extractor{
 		blockNumberQueue:  extractorQueueChannel,
 		blockNumberCommit: extractorCommitChannel,
+		blockOutput:       transformer.RawBlockChannel,
 	}
 	extractor.Start()
 

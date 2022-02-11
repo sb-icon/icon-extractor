@@ -49,6 +49,7 @@ func IconNodeServiceGetBlockByHeight(height int64) (*IconNodeResponseGetBlockByH
 
 	// Check status code
 	if res.StatusCode != 200 {
+		// TODO check err code in response body
 		return nil, errors.New(
 			"StatusCode=" + strconv.Itoa(res.StatusCode) +
 				",Request=" + payload +
@@ -67,7 +68,7 @@ func IconNodeServiceGetBlockByHeight(height int64) (*IconNodeResponseGetBlockByH
 	return body.Result, nil
 }
 
-func IconNodeServiceGetTransactionByHash(hash string) (interface{}, error) {
+func IconNodeServiceGetTransactionByHash(hash string) (*IconNodeResponseGetTransactionByHash, error) {
 
 	// Request icon contract
 	url := config.Config.IconNodeServiceURL
@@ -112,17 +113,12 @@ func IconNodeServiceGetTransactionByHash(hash string) (interface{}, error) {
 	}
 
 	// Parse body
-	body := map[string]interface{}{}
+	body := IconNodeResponseGetTransactionByHashBody{}
 	err = json.Unmarshal(bodyString, &body)
 	if err != nil {
 		return nil, err
 	}
 
 	// Extract result
-	result, ok := body["result"]
-	if ok == false {
-		return nil, errors.New("Cannot read result")
-	}
-
-	return result, nil
+	return body.Result, nil
 }
