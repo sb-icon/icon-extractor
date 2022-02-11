@@ -63,81 +63,92 @@ func startTransformer() {
 		// NOTE Some transaction data is in the block struct
 		// NOTE This assumes that the transactions in the block
 		// struct are in the same order as the transactions array
-		for i, rawTransaction := range rawBlock.ConfirmedTransactionList {
+		for iT, rawTransaction := range rawBlock.ConfirmedTransactionList {
 			block.Transactions = append(block.Transactions, &models.TransactionETL{})
 
 			// Hash
-			block.Transactions[i].Hash = rawTransaction.TransactionReceipt.TxHash
+			block.Transactions[iT].Hash = rawTransaction.TransactionReceipt.TxHash
 
 			// Timestamp
 			if rawTransaction.Timestamp != "" {
 				transactionTimestamp, _ := strconv.ParseInt(rawTransaction.Timestamp[2:], 16, 64)
-				block.Transactions[i].Timestamp = transactionTimestamp
+				block.Transactions[iT].Timestamp = transactionTimestamp
 			}
 
 			// Transaction Index
 			if rawTransaction.TransactionReceipt.TxIndex != "" {
 				transactionIndex, _ := strconv.ParseInt(rawTransaction.TransactionReceipt.TxIndex[2:], 16, 64)
-				block.Transactions[i].TransactionIndex = transactionIndex
+				block.Transactions[iT].TransactionIndex = transactionIndex
 			}
 
 			// Nonce
-			block.Transactions[i].Nonce = rawTransaction.Nonce
+			block.Transactions[iT].Nonce = rawTransaction.Nonce
 
 			// Nid
-			block.Transactions[i].Nid = rawTransaction.Nid
+			block.Transactions[iT].Nid = rawTransaction.Nid
 
 			// From Address
-			block.Transactions[i].FromAddress = rawTransaction.FromAddress
+			block.Transactions[iT].FromAddress = rawTransaction.FromAddress
 
 			// To Address
-			block.Transactions[i].ToAddress = rawTransaction.ToAddress
+			block.Transactions[iT].ToAddress = rawTransaction.ToAddress
 
 			// Value
 			// NOTE leave value as string, hex can get really large
-			block.Transactions[i].Value = rawTransaction.Value
+			block.Transactions[iT].Value = rawTransaction.Value
 
 			// Status
-			block.Transactions[i].Status = rawTransaction.TransactionReceipt.Status
+			block.Transactions[iT].Status = rawTransaction.TransactionReceipt.Status
 
 			// Step Price
-			block.Transactions[i].StepPrice = rawTransaction.TransactionReceipt.StepPrice
+			block.Transactions[iT].StepPrice = rawTransaction.TransactionReceipt.StepPrice
 
 			// Step Used
-			block.Transactions[i].StepUsed = rawTransaction.TransactionReceipt.StepUsed
+			block.Transactions[iT].StepUsed = rawTransaction.TransactionReceipt.StepUsed
 
 			// Step Limit
-			block.Transactions[i].StepLimit = rawTransaction.StepLimit
+			block.Transactions[iT].StepLimit = rawTransaction.StepLimit
 
 			// Step Limit
-			block.Transactions[i].CumulativeStepUsed = rawTransaction.TransactionReceipt.CumulativeStepUsed
+			block.Transactions[iT].CumulativeStepUsed = rawTransaction.TransactionReceipt.CumulativeStepUsed
 
 			// Logs Bloom
-			block.Transactions[i].LogsBloom = rawTransaction.TransactionReceipt.LogsBloom
+			block.Transactions[iT].LogsBloom = rawTransaction.TransactionReceipt.LogsBloom
 
 			// Data
 			if rawTransaction.Data != nil {
 				transactionDataString, _ := json.Marshal(&rawTransaction.Data)
-				block.Transactions[i].Data = string(transactionDataString)
+				block.Transactions[iT].Data = string(transactionDataString)
 			}
 
 			// Data Type
-			block.Transactions[i].DataType = rawTransaction.DataType
+			block.Transactions[iT].DataType = rawTransaction.DataType
 
 			// Score Address
-			block.Transactions[i].ScoreAddress = rawTransaction.TransactionReceipt.ToAddress
+			block.Transactions[iT].ScoreAddress = rawTransaction.TransactionReceipt.ToAddress
 
 			// Signature
-			block.Transactions[i].Signature = rawTransaction.Signature
+			block.Transactions[iT].Signature = rawTransaction.Signature
 
 			// Version
-			block.Transactions[i].Version = rawTransaction.Version
-		}
+			block.Transactions[iT].Version = rawTransaction.Version
 
-		////////////////
-		// Parse Logs //
-		////////////////
-		// TODO
+			////////////////
+			// Parse Logs //
+			////////////////
+			for iL, rawLog := range rawTransaction.TransactionReceipt.EventLogs {
+				block.Transactions[iT].Logs = append(block.Transactions[iT].Logs, &models.LogETL{})
+
+				// Address
+				block.Transactions[iT].Logs[iL].Address = rawLog.ScoreAddress
+
+				// Indexed
+				block.Transactions[iT].Logs[iL].Indexed = rawLog.Indexed
+
+				// Data
+				block.Transactions[iT].Logs[iL].Data = rawLog.Data
+			}
+		}
 
 		/////////////////
 		// Verify Data //

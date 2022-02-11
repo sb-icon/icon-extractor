@@ -7,7 +7,7 @@ import (
 
 func StartManager() {
 
-	go startManager(1)
+	go startManager(40000000)
 }
 
 func startManager(blockNumber int64) {

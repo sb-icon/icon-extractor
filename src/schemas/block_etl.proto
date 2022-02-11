@@ -43,6 +43,6 @@ message TransactionETL {
 
 message LogETL {
   string address = 1;
-  string indexed = 2;
-  string data = 3;
+  repeated string indexed = 2;
+  repeated string data = 3;
 }
