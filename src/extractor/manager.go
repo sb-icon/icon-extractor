@@ -2,12 +2,16 @@ package extractor
 
 import (
 	"github.com/geometry-labs/icon-go-etl/transformer"
-	"go.uber.org/zap"
 )
 
 func StartManager() {
 
 	go startManager(40000000)
+	go startManager(39000000)
+	go startManager(38000000)
+	go startManager(37000000)
+	go startManager(36000000)
+	go startManager(35000000)
 }
 
 func startManager(blockNumber int64) {
@@ -25,8 +29,7 @@ func startManager(blockNumber int64) {
 	for {
 		extractorQueueChannel <- blockNumber
 
-		commitBlockNumber := <-extractorCommitChannel
-		zap.S().Info("COMMIT BLOCK #", commitBlockNumber)
+		_ = <-extractorCommitChannel
 
 		blockNumber++
 	}
