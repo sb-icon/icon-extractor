@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"strconv"
 
+	"github.com/Shopify/sarama"
+	"github.com/geometry-labs/icon-go-etl/config"
+	"github.com/geometry-labs/icon-go-etl/kafka"
 	"github.com/geometry-labs/icon-go-etl/models"
 	"github.com/geometry-labs/icon-go-etl/service"
-	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 )
 
 var RawBlockChannel chan service.IconNodeResponseGetBlockByHeight
@@ -159,8 +162,21 @@ func startTransformer() {
 		///////////////////
 		// Send to Kafka //
 		///////////////////
-		// TODO
-		b, _ := json.Marshal(&block)
-		zap.S().Info(string(b))
+		producerMessageKey := strconv.FormatInt(block.Number, 10)
+
+		producerMessageValue, err := proto.Marshal(&block)
+		if err != nil {
+			// TODO DLQ
+			continue
+		}
+
+		kafkaMessage := &sarama.ProducerMessage{
+			Topic:     config.Config.KafkaProducerTopic,
+			Partition: -1,
+			Key:       sarama.StringEncoder(producerMessageKey),
+			Value:     sarama.StringEncoder(string(producerMessageValue)),
+		}
+
+		kafka.KafkaTopicProducers[config.Config.KafkaProducerTopic].TopicChan <- kafkaMessage
 	}
 }

@@ -19,6 +19,10 @@ type configType struct {
 
 	// Icon node service
 	IconNodeServiceURL string `envconfig:"ICON_NODE_SERVICE_URL" required:"false" default:"https://ctz.solidwallet.io/api/v3"`
+
+	// Kafka
+	KafkaBrokerURL     string `envconfig:"KAFKA_BROKER_URL" required:"false" default:"kafka:9092"`
+	KafkaProducerTopic string `envconfig:"KAFKA_PRODUCER_TOPIC" required:"false" default:"icon-blocks"`
 }
 
 // Config - runtime config struct
