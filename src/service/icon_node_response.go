@@ -3,11 +3,12 @@ package service
 //////////////////////
 // GetBlockByHeight //
 //////////////////////
-type IconNodeResponseGetBlockByHeightBody struct {
-	Result *IconNodeResponseGetBlockByHeight `json:"result"`
+type IconNodeResponseGetBlockByHeight struct {
+	Result *IconNodeResponseGetBlockByHeightResult `json:"result"`
+	Error  *IconNodeResponseError                  `json:"error"`
 }
 
-type IconNodeResponseGetBlockByHeight struct {
+type IconNodeResponseGetBlockByHeightResult struct {
 	BlockHash                string                                        `json:"block_hash"`
 	ConfirmedTransactionList []IconNodeResponseGetBlockByHeightTransaction `json:"confirmed_transaction_list"`
 	Height                   int64                                         `json:"height"`
@@ -39,11 +40,12 @@ type IconNodeResponseGetBlockByHeightTransaction struct {
 //////////////////////////
 // GetTransactionByHash //
 //////////////////////////
-type IconNodeResponseGetTransactionByHashBody struct {
-	Result *IconNodeResponseGetTransactionByHash `json:"result"`
+type IconNodeResponseGetTransactionByHash struct {
+	Result *IconNodeResponseGetTransactionByHashResult `json:"result"`
+	Error  *IconNodeResponseError                      `json:"error"`
 }
 
-type IconNodeResponseGetTransactionByHash struct {
+type IconNodeResponseGetTransactionByHashResult struct {
 	BlockHash          string                                         `json:"blockHash"`
 	blockHeight        string                                         `json:"blockHeight"`
 	CumulativeStepUsed string                                         `json:"cumulativeStepUsed"`
@@ -61,4 +63,13 @@ type IconNodeResponseGetTransactionByHashEventLog struct {
 	ScoreAddress string   `json:"scoreAddress"`
 	Indexed      []string `json:"indexed"`
 	Data         []string `json:"data"`
+}
+
+///////////
+// Error //
+///////////
+// Can occur in any body
+type IconNodeResponseError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }

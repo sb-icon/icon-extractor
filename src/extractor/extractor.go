@@ -5,12 +5,18 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/geometry-labs/icon-go-etl/config"
 	"github.com/geometry-labs/icon-go-etl/service"
 )
 
+type ExtractorJob struct {
+	startBlockNumber int64
+	endBlockNumber   int64
+}
+
 type Extractor struct {
-	blockNumberQueue  chan int64
-	blockNumberCommit chan int64
+	jobQueue chan ExtractorJob
+	commit   chan int64
 
 	blockOutput chan service.IconNodeResponseGetBlockByHeight
 }
@@ -24,8 +30,17 @@ func (e Extractor) start() {
 
 	for {
 
-		// Wait for block numbers
-		blockNumber := <-e.blockNumberQueue
+		// Wait for a job
+		extractorJob := <-e.jobQueue
+
+		blockNumbers := []int64{}
+		for i := 0; i < config.Config.IconNodeServiceMaxBatchSize; i++ {
+			if extractorJob.startBlockNumber+i >= extractorJob.endBlockNumber {
+				break
+			}
+
+			blockNumbers = append(blockNumbers, extractorJob.startBlockNumber+i)
+		}
 
 		// Loop until success
 		// NOTE break on success
@@ -36,7 +51,7 @@ func (e Extractor) start() {
 			// Get block //
 			///////////////
 			// NOTE rawBlock is sent to transformer
-			rawBlock, err := service.IconNodeServiceGetBlockByHeight(blockNumber)
+			rawBlocks, err := service.IconNodeServiceGetBlockByHeight(blockNumbers)
 			if err != nil {
 				zap.S().Warn(
 					"Routine=", "Extractor, ",

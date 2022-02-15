@@ -12,45 +12,66 @@ import (
 	"github.com/geometry-labs/icon-go-etl/config"
 )
 
-func IconNodeServiceGetBlockByHeight(height int64) (*IconNodeResponseGetBlockByHeight, error) {
+func IconNodeServiceGetBlockByHeight(heights []int64) ([]IconNodeResponseGetBlockByHeight, error) {
+
+	blocks := []IconNodeResponseGetBlockByHeight{}
+
+	if len(heights) > config.Config.IconNodeServiceMaxBatchSize {
+		return blocks, errors.New(
+			"Requested=" + strconv.Itoa(len(heights)) +
+				"MaxBatchSize=" + strconv.Itoa(config.Config.IconNodeServiceMaxBatchSize) +
+				"Error=Requested blocks is greater that max batch size",
+		)
+	}
 
 	// Request icon contract
 	url := config.Config.IconNodeServiceURL
 	method := "POST"
-	payload := fmt.Sprintf(`{
-    "jsonrpc": "2.0",
-    "method": "icx_getBlockByHeight",
-    "id": 1,
-    "params": {
-        "height": "0x%x"
-    }
-	}`, height)
+
+	payload := "["
+	for i, height := range heights {
+
+		singleRequest := fmt.Sprintf(`{
+			"jsonrpc": "2.0",
+			"method": "icx_getBlockByHeight",
+			"id": 1,
+			"params": {
+					"height": "0x%x"
+			}
+		}`, height)
+
+		payload += singleRequest
+		if i != len(heights)-1 {
+			payload += ","
+		}
+	}
+	payload += "]"
 
 	// Create http client
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, strings.NewReader(payload))
 	if err != nil {
-		return nil, err
+		return blocks, err
 	}
 
 	// Execute request
 	req.Header.Add("Content-Type", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return blocks, err
 	}
 	defer res.Body.Close()
 
 	// Read body
 	bodyString, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return blocks, err
 	}
 
 	// Check status code
 	if res.StatusCode != 200 {
 		// TODO check err code in response body
-		return nil, errors.New(
+		return blocks, errors.New(
 			"StatusCode=" + strconv.Itoa(res.StatusCode) +
 				",Request=" + payload +
 				",Response=" + string(bodyString),
@@ -58,54 +79,74 @@ func IconNodeServiceGetBlockByHeight(height int64) (*IconNodeResponseGetBlockByH
 	}
 
 	// Parse body
-	body := IconNodeResponseGetBlockByHeightBody{}
-	err = json.Unmarshal(bodyString, &body)
+	err = json.Unmarshal(bodyString, &blocks)
 	if err != nil {
-		return nil, err
+		return blocks, err
 	}
 
 	// Extract result
-	return body.Result, nil
+	return blocks, nil
 }
 
-func IconNodeServiceGetTransactionByHash(hash string) (*IconNodeResponseGetTransactionByHash, error) {
+func IconNodeServiceGetTransactionByHash(hashes []string) ([]IconNodeResponseGetTransactionByHash, error) {
+
+	transactions := []IconNodeResponseGetTransactionByHash{}
+
+	if len(hashes) > config.Config.IconNodeServiceMaxBatchSize {
+		return transactions, errors.New(
+			"Requested=" + strconv.Itoa(len(hashes)) +
+				"MaxBatchSize=" + strconv.Itoa(config.Config.IconNodeServiceMaxBatchSize) +
+				"Error=Requested transactions is greater that max batch size",
+		)
+	}
 
 	// Request icon contract
 	url := config.Config.IconNodeServiceURL
 	method := "POST"
-	payload := fmt.Sprintf(`{
-    "jsonrpc": "2.0",
-    "method": "icx_getTransactionResult",
-    "id": 1,
-    "params": {
-        "txHash": "%s"
-    }
-	}`, hash)
+
+	payload := "["
+	for i, hash := range hashes {
+
+		singleRequest := fmt.Sprintf(`{
+			"jsonrpc": "2.0",
+			"method": "icx_getTransactionResult",
+			"id": 1,
+			"params": {
+					"txHash": "%s"
+			}
+		}`, hash)
+
+		payload += singleRequest
+		if i != len(hashes)-1 {
+			payload += ","
+		}
+	}
+	payload += "]"
 
 	// Create http client
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, strings.NewReader(payload))
 	if err != nil {
-		return nil, err
+		return transactions, err
 	}
 
 	// Execute request
 	req.Header.Add("Content-Type", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return transactions, err
 	}
 	defer res.Body.Close()
 
 	// Read body
 	bodyString, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return transactions, err
 	}
 
 	// Check status code
 	if res.StatusCode != 200 {
-		return nil, errors.New(
+		return transactions, errors.New(
 			"StatusCode=" + strconv.Itoa(res.StatusCode) +
 				",Request=" + payload +
 				",Response=" + string(bodyString),
@@ -113,12 +154,11 @@ func IconNodeServiceGetTransactionByHash(hash string) (*IconNodeResponseGetTrans
 	}
 
 	// Parse body
-	body := IconNodeResponseGetTransactionByHashBody{}
-	err = json.Unmarshal(bodyString, &body)
+	err = json.Unmarshal(bodyString, &transactions)
 	if err != nil {
-		return nil, err
+		return transactions, err
 	}
 
 	// Extract result
-	return body.Result, nil
+	return transactions, nil
 }
