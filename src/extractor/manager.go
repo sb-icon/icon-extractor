@@ -11,8 +11,8 @@ func StartManager() {
 
 func startManager(blockNumber int64) {
 
-	jobQueueChannel := make(chan ExtractorJob)
-	jobCommitChannel := make(chan ExtractorJob)
+	jobQueueChannel := make(chan Job)
+	jobCommitChannel := make(chan Job)
 
 	extractor := Extractor{
 		jobQueue:    jobQueueChannel,
@@ -24,7 +24,7 @@ func startManager(blockNumber int64) {
 	i := int64(0)
 	batchSize := int64(1)
 	for {
-		jobQueueChannel <- ExtractorJob{
+		jobQueueChannel <- Job{
 			startBlockNumber: blockNumber + i,
 			endBlockNumber:   blockNumber + i + batchSize,
 		}

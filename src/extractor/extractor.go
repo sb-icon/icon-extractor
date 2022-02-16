@@ -11,14 +11,14 @@ import (
 	"github.com/geometry-labs/icon-go-etl/service"
 )
 
-type ExtractorJob struct {
+type Job struct {
 	startBlockNumber int64 // Inclusive
 	endBlockNumber   int64 // Exclusive
 }
 
 type Extractor struct {
-	jobQueue    chan ExtractorJob                                   // Input
-	jobCommit   chan ExtractorJob                                   // Output
+	jobQueue    chan Job                                            // Input
+	jobCommit   chan Job                                            // Output
 	blockOutput chan service.IconNodeResponseGetBlockByHeightResult // Output
 }
 
@@ -33,11 +33,11 @@ func (e Extractor) start() {
 	for {
 
 		// Wait for a job
-		extractorJob := <-e.jobQueue
+		job := <-e.jobQueue
 
-		blockNumberQueue := make([]int64, extractorJob.endBlockNumber-extractorJob.startBlockNumber)
+		blockNumberQueue := make([]int64, job.endBlockNumber-job.startBlockNumber)
 		for iB := range blockNumberQueue {
-			blockNumberQueue[iB] = extractorJob.startBlockNumber + int64(iB)
+			blockNumberQueue[iB] = job.startBlockNumber + int64(iB)
 		}
 
 		// Loop through block numbers in queue
@@ -223,6 +223,6 @@ func (e Extractor) start() {
 		}
 
 		// Commit job
-		e.jobCommit <- extractorJob
+		e.jobCommit <- job
 	}
 }

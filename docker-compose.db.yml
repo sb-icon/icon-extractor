@@ -2,6 +2,17 @@ version: "3.7"
 
 services:
 
+  ############
+  # Postgres #
+  ############
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    ports:
+      - "5432:5432"
+
   #########
   # Kafka #
   #########

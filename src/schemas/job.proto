@@ -1,0 +1,26 @@
+syntax = "proto3";
+package models;
+option go_package = "./models";
+
+import "github.com/infobloxopen/protoc-gen-gorm/options/gorm.proto";
+
+message Job {
+  option (gorm.opts) = {ormable: true};
+
+  string hash = 1 [(gorm.field).tag = {primary_key: true}]; // Hash of this obj in json
+  int64 created_timestamp = 2;
+  int64 start_block_number = 3;
+  int64 end_block_number = 4;
+  bool is_head = 5; // If set to true, job will continue after reaching end_block_number
+  int64 num_batches = 6;
+}
+
+message Batch {
+  option (gorm.opts) = {ormable: true};
+
+  string job_hash = 1 [(gorm.field).tag = {primary_key: true}];
+  int64 batch_index = 2 [(gorm.field).tag = {primary_key: true}];
+  int64 start_block_number = 3;
+  int64 end_block_number = 4;
+  bool is_head = 5; // If set to true, job will continue after reaching end_block_number
+}
