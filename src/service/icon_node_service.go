@@ -23,6 +23,9 @@ func IconNodeServiceGetBlockByHeight(heights []int64) ([]IconNodeResponseGetBloc
 				"Error=Requested blocks is greater that max batch size",
 		)
 	}
+	if len(heights) == 0 {
+		return blocks, nil
+	}
 
 	// Request icon contract
 	url := config.Config.IconNodeServiceURL
@@ -98,6 +101,9 @@ func IconNodeServiceGetTransactionByHash(hashes []string) ([]IconNodeResponseGet
 				"MaxBatchSize=" + strconv.Itoa(config.Config.IconNodeServiceMaxBatchSize) +
 				"Error=Requested transactions is greater that max batch size",
 		)
+	}
+	if len(hashes) == 0 {
+		return transactions, nil
 	}
 
 	// Request icon contract

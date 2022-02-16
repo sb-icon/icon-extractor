@@ -1,6 +1,9 @@
 package extractor
 
 import (
+	"math"
+	"strconv"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -15,10 +18,10 @@ type ExtractorJob struct {
 }
 
 type Extractor struct {
-	jobQueue chan ExtractorJob
-	commit   chan int64
+	jobQueue  chan ExtractorJob
+	jobCommit chan ExtractorJob
 
-	blockOutput chan service.IconNodeResponseGetBlockByHeight
+	blockOutput chan service.IconNodeResponseGetBlockByHeightResult
 }
 
 func (e Extractor) Start() {
@@ -28,85 +31,187 @@ func (e Extractor) Start() {
 
 func (e Extractor) start() {
 
+	// Loop forever, read job queue
 	for {
 
 		// Wait for a job
 		extractorJob := <-e.jobQueue
 
-		blockNumbers := []int64{}
-		for i := 0; i < config.Config.IconNodeServiceMaxBatchSize; i++ {
-			if extractorJob.startBlockNumber+i >= extractorJob.endBlockNumber {
-				break
-			}
-
-			blockNumbers = append(blockNumbers, extractorJob.startBlockNumber+i)
+		blockNumberQueue := make([]int64, extractorJob.endBlockNumber-extractorJob.startBlockNumber+1)
+		for i := range blockNumberQueue {
+			blockNumberQueue[i] = extractorJob.startBlockNumber + int64(i)
 		}
 
-		// Loop until success
-		// NOTE break on success
-		// NOTE continue on failure
+		// Loop through block numbers in queue
 		for {
+			batchSize := int(math.Min(float64(config.Config.IconNodeServiceMaxBatchSize), float64(len(blockNumberQueue))))
 
-			///////////////
-			// Get block //
-			///////////////
-			// NOTE rawBlock is sent to transformer
-			rawBlocks, err := service.IconNodeServiceGetBlockByHeight(blockNumbers)
+			blockNumbers := blockNumberQueue[0:batchSize]
+
+			////////////////
+			// Get blocks //
+			////////////////
+			rawBlocksAll, err := service.IconNodeServiceGetBlockByHeight(blockNumbers)
 			if err != nil {
 				zap.S().Warn(
 					"Routine=", "Extractor, ",
-					"Step=", "Get Block, ",
-					"BlockNumber=", blockNumber, ", ",
+					"Step=", "Get Blocks, ",
+					"BlockNumbers=", blockNumbers, ", ",
 					"Error=", err.Error(),
 					" - Retrying in 1 second...",
 				)
 
 				time.Sleep(1 * time.Second)
 				continue
+			}
+
+			//////////////////
+			// Check blocks //
+			//////////////////
+			rawBlocks := []service.IconNodeResponseGetBlockByHeightResult{}
+			for iB, block := range rawBlocksAll {
+				if block.Error != nil {
+					// Error getting block, send block number back to queue
+					blockNumberQueue = append(blockNumberQueue, blockNumbers[iB])
+
+					zap.S().Warn(
+						"Routine=", "Extractor, ",
+						"Step=", "Check transaction, ",
+						"BlockNumber=", blockNumbers[iB], ", ",
+						"ErrorCode=", block.Error.Code, ", ",
+						"ErrorMessage=", block.Error.Message, ", ",
+					)
+				} else {
+					// Success
+					rawBlocks = append(rawBlocks, *block.Result)
+				}
 			}
 
 			//////////////////////
 			// Get transactions //
 			//////////////////////
-			for i, transaction := range rawBlock.ConfirmedTransactionList {
-				transactionHash := ""
-				if transaction.TxHashV1 != "" {
-					transactionHash = "0x" + transaction.TxHashV1
-				} else if transaction.TxHashV3 != "" {
-					transactionHash = transaction.TxHashV3
+			transactionHashQueue := []string{}
+			for iB, block := range rawBlocks {
+
+				for iT, transaction := range block.ConfirmedTransactionList {
+					// normalize
+					hash := ""
+					if transaction.TxHashV1 != "" {
+						hash = "0x" + transaction.TxHashV1
+					} else if transaction.TxHashV3 != "" {
+						hash = transaction.TxHashV3
+					}
+					rawBlocks[iB].ConfirmedTransactionList[iT].TxHash = hash
+
+					// Add to queue
+					transactionHashQueue = append(transactionHashQueue, hash)
+				}
+			}
+
+			// Loop through all transaction hashes in queue
+			for {
+				batchSize := int(math.Min(float64(config.Config.IconNodeServiceMaxBatchSize), float64(len(transactionHashQueue))))
+
+				transactionHashes := transactionHashQueue[0:batchSize]
+
+				rawTransactionsAll, err := service.IconNodeServiceGetTransactionByHash(transactionHashes)
+				if err != nil {
+					zap.S().Warn(
+						"Routine=", "Extractor, ",
+						"Step=", "Get Transactions, ",
+						"TransactionHashes=", transactionHashes, ", ",
+						"Error=", err.Error(),
+						" - Retrying in 1 second...",
+					)
+
+					time.Sleep(1 * time.Second)
+					continue
 				}
 
-				var transactionRaw *service.IconNodeResponseGetTransactionByHash
-				transactionRaw, err = service.IconNodeServiceGetTransactionByHash(transactionHash)
-				if err != nil {
+				////////////////////////
+				// Check transactions //
+				////////////////////////
+				rawTransactions := []service.IconNodeResponseGetTransactionByHashResult{}
+				for iT, transaction := range rawTransactionsAll {
+					if transaction.Error != nil {
+						// Error getting transaction, send transaction hash back to queue
+						transactionHashQueue = append(transactionHashQueue, transactionHashes[iT])
+
+						zap.S().Warn(
+							"Routine=", "Extractor, ",
+							"Step=", "Check transaction, ",
+							"TransactionHash=", transactionHashes[iT], ", ",
+							"ErrorCode=", transaction.Error.Code, ", ",
+							"ErrorMessage=", transaction.Error.Message, ", ",
+						)
+					} else {
+						// Success
+						rawTransactions = append(rawTransactions, *transaction.Result)
+					}
+				}
+
+				////////////////////////////////
+				// Add transactions to blocks //
+				////////////////////////////////
+				for _, transaction := range rawTransactions {
+
+					// Parse block number (Hex)
+					transactionBlockNumber, err := strconv.ParseInt(strings.Replace(transaction.BlockHeight, "0x", "", -1), 16, 64)
+					if err != nil {
+						zap.S().Warn(
+							"Routine=", "Extractor, ",
+							"Step=", "Parse Transaction Block Number, ",
+							"TransactionHash=", transaction.TxHash, ", ",
+							"TransactionBlockNumber=", transactionBlockNumber, ", ",
+							"Error=", err.Error(),
+						)
+						continue
+					}
+
+					// Find block
+					for iB, block := range rawBlocks {
+						if block.Height == transactionBlockNumber {
+
+							// Find transaction
+							for iT, blockTransaction := range block.ConfirmedTransactionList {
+								if blockTransaction.TxHash == transaction.TxHash {
+
+									// Insert
+									rawBlocks[iB].ConfirmedTransactionList[iT].TransactionReceipt = transaction
+								}
+							}
+						}
+					}
+				}
+
+				/////////////////
+				// Check queue //
+				/////////////////
+				transactionHashQueue = transactionHashQueue[batchSize:]
+				if len(transactionHashQueue) == 0 {
+					// Done with job
 					break
 				}
-
-				rawBlock.ConfirmedTransactionList[i].TransactionReceipt = *transactionRaw
-			}
-			if err != nil {
-				zap.S().Warn(
-					"Routine=", "Extractor, ",
-					"Step=", "Get Transactions, ",
-					"BlockNumber=", blockNumber, ", ",
-					"Error=", err.Error(),
-					" - Retrying in 1 second...",
-				)
-
-				time.Sleep(1 * time.Second)
-				continue
 			}
 
 			/////////////////////////
 			// Send to transformer //
 			/////////////////////////
-			e.blockOutput <- *rawBlock
+			for _, block := range rawBlocks {
+				e.blockOutput <- block
+			}
 
-			// Success
-			break
+			/////////////////
+			// Check queue //
+			/////////////////
+			blockNumberQueue = blockNumberQueue[batchSize:]
+			if len(blockNumberQueue) == 0 {
+				// Done with job
+				break
+			}
 		}
 
-		// Commit block number
-		e.blockNumberCommit <- blockNumber
+		// Commit job
+		e.jobCommit <- extractorJob
 	}
 }

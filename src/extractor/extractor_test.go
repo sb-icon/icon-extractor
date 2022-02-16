@@ -1,12 +1,12 @@
 package extractor
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/geometry-labs/icon-go-etl/config"
 	"github.com/geometry-labs/icon-go-etl/logging"
 	"github.com/geometry-labs/icon-go-etl/service"
+	"github.com/geometry-labs/icon-go-etl/transformer"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,38 +23,35 @@ func init() {
 func TestStart(t *testing.T) {
 	assert := assert.New(t)
 
-	// Input Channels
-	extractorQueueChannel := make(chan int64)
-
-	// Output channels
-	extractorCommitChannel := make(chan int64)
-	blockOutputChannel := make(chan service.IconNodeResponseGetBlockByHeight)
+	jobQueueChannel := make(chan ExtractorJob)
+	jobCommitChannel := make(chan ExtractorJob)
+	blockOutputChannel := make(chan service.IconNodeResponseGetBlockByHeightResult)
 
 	extractor := Extractor{
-		blockNumberQueue:  extractorQueueChannel,
-		blockNumberCommit: extractorCommitChannel,
-		blockOutput:       blockOutputChannel,
+		jobQueue:    jobQueueChannel,
+		jobCommit:   jobCommitChannel,
+		blockOutput: transformer.RawBlockChannel,
 	}
 	extractor.Start()
 
+	startBlockNumber := int64(1)
+	endBlockNumber := int64(10)
+	jobQueueChannel <- ExtractorJob{
+		startBlockNumber: startBlockNumber,
+		endBlockNumber:   endBlockNumber,
+	}
+
 	go func() {
-		blockNumber := int64(1)
-
 		for {
-			extractorQueueChannel <- blockNumber
-
-			_ = <-extractorCommitChannel
-
-			blockNumber++
+			_ = <-jobCommitChannel
 		}
 	}()
 
-	for i := 0; i < 10; i++ {
+	for i := int64(0); i < endBlockNumber-startBlockNumber; i++ {
 
 		block := <-blockOutputChannel
 
-		b, err := json.Marshal(&block)
-		assert.Equal(nil, err)
-		t.Logf(string(b))
+		// Assert values in block
+		assert.Equal(startBlockNumber+i, block.Height)
 	}
 }

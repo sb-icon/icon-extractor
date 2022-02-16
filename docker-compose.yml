@@ -10,6 +10,8 @@ x-env: &env
   LOG_FORMAT: "console"
   LOG_IS_DEVELOPMENT: "true"
 
+  KAFKA_BROKER_URL: "kafka:9092"
+
 services:
   etl:
     build:

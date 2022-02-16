@@ -7,30 +7,30 @@ import (
 func StartManager() {
 
 	go startManager(40000000)
-	go startManager(39000000)
-	go startManager(38000000)
-	go startManager(37000000)
-	go startManager(36000000)
-	go startManager(35000000)
 }
 
 func startManager(blockNumber int64) {
 
-	extractorQueueChannel := make(chan int64)
-	extractorCommitChannel := make(chan int64)
+	jobQueueChannel := make(chan ExtractorJob)
+	jobCommitChannel := make(chan ExtractorJob)
 
 	extractor := Extractor{
-		blockNumberQueue:  extractorQueueChannel,
-		blockNumberCommit: extractorCommitChannel,
-		blockOutput:       transformer.RawBlockChannel,
+		jobQueue:    jobQueueChannel,
+		jobCommit:   jobCommitChannel,
+		blockOutput: transformer.RawBlockChannel,
 	}
 	extractor.Start()
 
+	i := int64(0)
 	for {
-		extractorQueueChannel <- blockNumber
+		jobQueueChannel <- ExtractorJob{
+			startBlockNumber: blockNumber + i,
+			endBlockNumber:   blockNumber + i + 100,
+		}
 
-		_ = <-extractorCommitChannel
+		_ = <-jobCommitChannel
 
-		blockNumber++
+		blockNumber += 100
+		break
 	}
 }

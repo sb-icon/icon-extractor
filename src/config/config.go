@@ -14,7 +14,7 @@ type configType struct {
 	LogLevel         string `envconfig:"LOG_LEVEL" required:"false" default:"INFO"`
 	LogToFile        bool   `envconfig:"LOG_TO_FILE" required:"false" default:"false"`
 	LogFileName      string `envconfig:"LOG_FILE_NAME" required:"false" default:"etl.log"`
-	LogFormat        string `envconfig:"LOG_FORMAT" required:"false" default:"json"`
+	LogFormat        string `envconfig:"LOG_FORMAT" required:"false" default:"console"`
 	LogIsDevelopment bool   `envconfig:"LOG_IS_DEVELOPMENT" required:"false" default:"true"`
 
 	// Icon node service

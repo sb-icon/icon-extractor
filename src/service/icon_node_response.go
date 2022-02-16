@@ -21,20 +21,21 @@ type IconNodeResponseGetBlockByHeightResult struct {
 }
 
 type IconNodeResponseGetBlockByHeightTransaction struct {
-	Data               interface{}                          `json:"data"`
-	DataType           string                               `json:"dataType"`
-	Timestamp          string                               `json:"timestamp"`
-	TxHashV1           string                               `json:"tx_hash"`
-	TxHashV3           string                               `json:"txHash"`
-	Version            string                               `json:"version"`
-	FromAddress        string                               `json:"from"`
-	ToAddress          string                               `json:"to"`
-	Value              string                               `json:"value"`
-	Nid                string                               `json:"nid"`
-	Nonce              string                               `json:"nonce"`
-	Signature          string                               `json:"signature"`
-	StepLimit          string                               `json:"stepLimit"`
-	TransactionReceipt IconNodeResponseGetTransactionByHash // Field comes from the GetTransactionByHash call
+	Data               interface{}                                `json:"data"`
+	DataType           string                                     `json:"dataType"`
+	Timestamp          string                                     `json:"timestamp"`
+	TxHashV1           string                                     `json:"tx_hash"`
+	TxHashV3           string                                     `json:"txHash"`
+	TxHash             string                                     // Normalize from V1 and V3
+	Version            string                                     `json:"version"`
+	FromAddress        string                                     `json:"from"`
+	ToAddress          string                                     `json:"to"`
+	Value              string                                     `json:"value"`
+	Nid                string                                     `json:"nid"`
+	Nonce              string                                     `json:"nonce"`
+	Signature          string                                     `json:"signature"`
+	StepLimit          string                                     `json:"stepLimit"`
+	TransactionReceipt IconNodeResponseGetTransactionByHashResult // Field comes from the GetTransactionByHash call
 }
 
 //////////////////////////
@@ -47,7 +48,7 @@ type IconNodeResponseGetTransactionByHash struct {
 
 type IconNodeResponseGetTransactionByHashResult struct {
 	BlockHash          string                                         `json:"blockHash"`
-	blockHeight        string                                         `json:"blockHeight"`
+	BlockHeight        string                                         `json:"blockHeight"`
 	CumulativeStepUsed string                                         `json:"cumulativeStepUsed"`
 	EventLogs          []IconNodeResponseGetTransactionByHashEventLog `json:"eventLogs"`
 	LogsBloom          string                                         `json:"logsBloom"`
