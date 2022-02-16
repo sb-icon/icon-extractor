@@ -6,7 +6,7 @@ import (
 
 func StartManager() {
 
-	go startManager(40000000)
+	go startManager(46235085)
 }
 
 func startManager(blockNumber int64) {
@@ -22,15 +22,15 @@ func startManager(blockNumber int64) {
 	extractor.Start()
 
 	i := int64(0)
+	batchSize := int64(1)
 	for {
 		jobQueueChannel <- ExtractorJob{
 			startBlockNumber: blockNumber + i,
-			endBlockNumber:   blockNumber + i + 100,
+			endBlockNumber:   blockNumber + i + batchSize,
 		}
 
 		_ = <-jobCommitChannel
 
-		blockNumber += 100
-		break
+		blockNumber += batchSize
 	}
 }

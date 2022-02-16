@@ -4,7 +4,6 @@ import (
 	"math"
 	"strconv"
 	"strings"
-	"time"
 
 	"go.uber.org/zap"
 
@@ -13,15 +12,14 @@ import (
 )
 
 type ExtractorJob struct {
-	startBlockNumber int64
-	endBlockNumber   int64
+	startBlockNumber int64 // Inclusive
+	endBlockNumber   int64 // Exclusive
 }
 
 type Extractor struct {
-	jobQueue  chan ExtractorJob
-	jobCommit chan ExtractorJob
-
-	blockOutput chan service.IconNodeResponseGetBlockByHeightResult
+	jobQueue    chan ExtractorJob                                   // Input
+	jobCommit   chan ExtractorJob                                   // Output
+	blockOutput chan service.IconNodeResponseGetBlockByHeightResult // Output
 }
 
 func (e Extractor) Start() {
@@ -37,9 +35,9 @@ func (e Extractor) start() {
 		// Wait for a job
 		extractorJob := <-e.jobQueue
 
-		blockNumberQueue := make([]int64, extractorJob.endBlockNumber-extractorJob.startBlockNumber+1)
-		for i := range blockNumberQueue {
-			blockNumberQueue[i] = extractorJob.startBlockNumber + int64(i)
+		blockNumberQueue := make([]int64, extractorJob.endBlockNumber-extractorJob.startBlockNumber)
+		for iB := range blockNumberQueue {
+			blockNumberQueue[iB] = extractorJob.startBlockNumber + int64(iB)
 		}
 
 		// Loop through block numbers in queue
@@ -58,10 +56,7 @@ func (e Extractor) start() {
 					"Step=", "Get Blocks, ",
 					"BlockNumbers=", blockNumbers, ", ",
 					"Error=", err.Error(),
-					" - Retrying in 1 second...",
 				)
-
-				time.Sleep(1 * time.Second)
 				continue
 			}
 
@@ -74,13 +69,22 @@ func (e Extractor) start() {
 					// Error getting block, send block number back to queue
 					blockNumberQueue = append(blockNumberQueue, blockNumbers[iB])
 
-					zap.S().Warn(
-						"Routine=", "Extractor, ",
-						"Step=", "Check transaction, ",
-						"BlockNumber=", blockNumbers[iB], ", ",
-						"ErrorCode=", block.Error.Code, ", ",
-						"ErrorMessage=", block.Error.Message, ", ",
-					)
+					if block.Error.Code == -31004 {
+						zap.S().Info(
+							"Routine=", "Extractor, ",
+							"Step=", "Check block, ",
+							"BlockNumber=", blockNumbers[iB], ", ",
+							" - Waiting for block to be created...",
+						)
+					} else {
+						zap.S().Warn(
+							"Routine=", "Extractor, ",
+							"Step=", "Check block, ",
+							"BlockNumber=", blockNumbers[iB], ", ",
+							"ErrorCode=", block.Error.Code, ", ",
+							"ErrorMessage=", block.Error.Message, ", ",
+						)
+					}
 				} else {
 					// Success
 					rawBlocks = append(rawBlocks, *block.Result)
@@ -121,10 +125,7 @@ func (e Extractor) start() {
 						"Step=", "Get Transactions, ",
 						"TransactionHashes=", transactionHashes, ", ",
 						"Error=", err.Error(),
-						" - Retrying in 1 second...",
 					)
-
-					time.Sleep(1 * time.Second)
 					continue
 				}
 
@@ -137,13 +138,23 @@ func (e Extractor) start() {
 						// Error getting transaction, send transaction hash back to queue
 						transactionHashQueue = append(transactionHashQueue, transactionHashes[iT])
 
-						zap.S().Warn(
-							"Routine=", "Extractor, ",
-							"Step=", "Check transaction, ",
-							"TransactionHash=", transactionHashes[iT], ", ",
-							"ErrorCode=", transaction.Error.Code, ", ",
-							"ErrorMessage=", transaction.Error.Message, ", ",
-						)
+						if transaction.Error.Code == -31004 || transaction.Error.Code == -31003 {
+							zap.S().Info(
+								"Routine=", "Extractor, ",
+								"Step=", "Check transaction, ",
+								"BlockNumber=", transactionHashes[iT], ", ",
+								" - Waiting for transaction to be created...",
+							)
+						} else {
+
+							zap.S().Warn(
+								"Routine=", "Extractor, ",
+								"Step=", "Check transaction, ",
+								"TransactionHash=", transactionHashes[iT], ", ",
+								"ErrorCode=", transaction.Error.Code, ", ",
+								"ErrorMessage=", transaction.Error.Message, ", ",
+							)
+						}
 					} else {
 						// Success
 						rawTransactions = append(rawTransactions, *transaction.Result)

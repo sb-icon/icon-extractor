@@ -9,7 +9,6 @@ import (
 	"github.com/geometry-labs/icon-go-etl/kafka"
 	"github.com/geometry-labs/icon-go-etl/models"
 	"github.com/geometry-labs/icon-go-etl/service"
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -179,9 +178,5 @@ func startTransformer() {
 		}
 
 		kafka.KafkaTopicProducers[config.Config.KafkaProducerTopic].TopicChan <- kafkaMessage
-
-		// DEBUG
-		blockJSON, _ := json.Marshal(&block)
-		zap.S().Info(string(blockJSON))
 	}
 }
