@@ -22,8 +22,9 @@ type configType struct {
 	IconNodeServiceMaxBatchSize int    `envconfig:"ICON_NODE_SERVICE_MAX_BATCH_SIZE" required:"false" default:"10"`
 
 	// Kafka
-	KafkaBrokerURL     string `envconfig:"KAFKA_BROKER_URL" required:"false" default:"localhost:29092"`
-	KafkaProducerTopic string `envconfig:"KAFKA_PRODUCER_TOPIC" required:"false" default:"icon-blocks"`
+	KafkaBrokerURL        string `envconfig:"KAFKA_BROKER_URL" required:"false" default:"localhost:29092"`
+	KafkaBlocksTopic      string `envconfig:"KAFKA_PRODUCER_TOPIC" required:"false" default:"icon-blocks"`
+	KafkaDeadMessageTopic string `envconfig:"KAFKA_DEAD_MESSAGE_TOPIC" required:"false" default:"icon-blocks-dead"`
 }
 
 // Config - runtime config struct

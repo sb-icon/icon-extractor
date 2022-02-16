@@ -21,15 +21,23 @@ var KafkaTopicProducers = map[string]*KafkaTopicProducer{}
 
 func StartProducers() {
 	kafkaBroker := config.Config.KafkaBrokerURL
-	producerTopic := config.Config.KafkaProducerTopic
+	blocksTopic := config.Config.KafkaBlocksTopic
+	deadMessageTopic := config.Config.KafkaDeadMessageTopic
 
-	KafkaTopicProducers[producerTopic] = &KafkaTopicProducer{
+	KafkaTopicProducers[blocksTopic] = &KafkaTopicProducer{
 		kafkaBroker,
-		producerTopic,
+		blocksTopic,
 		make(chan *sarama.ProducerMessage),
 	}
 
-	go KafkaTopicProducers[producerTopic].produceTopic()
+	KafkaTopicProducers[deadMessageTopic] = &KafkaTopicProducer{
+		kafkaBroker,
+		deadMessageTopic,
+		make(chan *sarama.ProducerMessage),
+	}
+
+	go KafkaTopicProducers[blocksTopic].produceTopic()
+	go KafkaTopicProducers[deadMessageTopic].produceTopic()
 }
 
 func (k *KafkaTopicProducer) produceTopic() {

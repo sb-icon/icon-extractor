@@ -162,21 +162,30 @@ func startTransformer() {
 		///////////////////
 		// Send to Kafka //
 		///////////////////
-		producerMessageKey := strconv.FormatInt(block.Number, 10)
+		messageKey := strconv.FormatInt(block.Number, 10)
 
-		producerMessageValue, err := proto.Marshal(&block)
+		messageValue, err := proto.Marshal(&block)
 		if err != nil {
-			// TODO DLQ
+			messageValue, _ = json.Marshal(&block)
+
+			kafkaMessage := &sarama.ProducerMessage{
+				Topic:     config.Config.KafkaDeadMessageTopic,
+				Partition: -1,
+				Key:       sarama.StringEncoder(messageKey),
+				Value:     sarama.StringEncoder(string(messageValue)),
+			}
+
+			kafka.KafkaTopicProducers[config.Config.KafkaDeadMessageTopic].TopicChan <- kafkaMessage
 			continue
 		}
 
 		kafkaMessage := &sarama.ProducerMessage{
-			Topic:     config.Config.KafkaProducerTopic,
+			Topic:     config.Config.KafkaBlocksTopic,
 			Partition: -1,
-			Key:       sarama.StringEncoder(producerMessageKey),
-			Value:     sarama.StringEncoder(string(producerMessageValue)),
+			Key:       sarama.StringEncoder(messageKey),
+			Value:     sarama.StringEncoder(string(messageValue)),
 		}
 
-		kafka.KafkaTopicProducers[config.Config.KafkaProducerTopic].TopicChan <- kafkaMessage
+		kafka.KafkaTopicProducers[config.Config.KafkaBlocksTopic].TopicChan <- kafkaMessage
 	}
 }
