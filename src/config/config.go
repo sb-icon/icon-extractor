@@ -11,7 +11,8 @@ type configType struct {
 	// General
 	Name          string `envconfig:"NAME" required:"false" default:"icon-go-etl"`
 	NetworkName   string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
-	NumExtractors int    `envconfig:"NUM_EXTRACTORS" required:"false" default:"1"`
+	NumExtractors int    `envconfig:"NUM_EXTRACTORS" required:"false" default:"2"`
+	MaxClaimSize  int    `envconfig:"MAX_CLAIM_SIZE" required:"false" default:"1000"`
 
 	// API
 	APIPort           string `envconfig:"API_PORT" required:"false" default:"8000"`
@@ -29,8 +30,8 @@ type configType struct {
 	LogIsDevelopment bool   `envconfig:"LOG_IS_DEVELOPMENT" required:"false" default:"true"`
 
 	// Icon node service
-	IconNodeServiceURL          string `envconfig:"ICON_NODE_SERVICE_URL" required:"false" default:"https://ctz.solidwallet.io/api/v3"`
-	IconNodeServiceMaxBatchSize int    `envconfig:"ICON_NODE_SERVICE_MAX_BATCH_SIZE" required:"false" default:"10"`
+	IconNodeServiceURL          string `envconfig:"ICON_NODE_SERVICE_URL" required:"false" default:"https://api.icon.geometry.io/api/v3"`
+	IconNodeServiceMaxBatchSize int    `envconfig:"ICON_NODE_SERVICE_MAX_BATCH_SIZE" required:"false" default:"100"`
 
 	// Kafka
 	KafkaBrokerURL        string `envconfig:"KAFKA_BROKER_URL" required:"false" default:"localhost:29092"`

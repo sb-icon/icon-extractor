@@ -28,7 +28,34 @@ const docTemplate_swagger = `{
                     "Jobs"
                 ],
                 "summary": "create an etl job",
+                "parameters": [
+                    {
+                        "description": "{}",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.JobsBody"
+                        }
+                    }
+                ],
                 "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "routes.JobsBody": {
+            "type": "object",
+            "properties": {
+                "end_block_number": {
+                    "type": "integer"
+                },
+                "is_head": {
+                    "type": "boolean"
+                },
+                "start_block_number": {
+                    "type": "integer"
+                }
             }
         }
     }

@@ -1,3 +1,13 @@
+definitions:
+  routes.JobsBody:
+    properties:
+      end_block_number:
+        type: integer
+      is_head:
+        type: boolean
+      start_block_number:
+        type: integer
+    type: object
 info:
   contact: {}
   description: This is a sample server server.
@@ -8,6 +18,13 @@ paths:
     post:
       consumes:
       - '*/*'
+      parameters:
+      - description: '{}'
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/routes.JobsBody'
       produces:
       - application/json
       responses: {}
