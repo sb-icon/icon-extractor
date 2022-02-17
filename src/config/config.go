@@ -7,10 +7,19 @@ import (
 )
 
 type configType struct {
-	Name        string `envconfig:"NAME" required:"false" default:"icon-go-etl"`
-	NetworkName string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
 
-	NumExtractors int `envconfig:"NUM_EXTRACTORS" required:"false" default:"1"`
+	// General
+	Name          string `envconfig:"NAME" required:"false" default:"icon-go-etl"`
+	NetworkName   string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
+	NumExtractors int    `envconfig:"NUM_EXTRACTORS" required:"false" default:"1"`
+
+	// API
+	APIPort           string `envconfig:"API_PORT" required:"false" default:"8000"`
+	APIPrefix         string `envconfig:"API_PREFIX" required:"false" default:"/api/v1"`
+	CORSAllowOrigins  string `envconfig:"CORS_ALLOW_ORIGINS" required:"false" default:"*"`
+	CORSAllowHeaders  string `envconfig:"CORS_ALLOW_HEADERS" required:"false" default:"*"`
+	CORSAllowMethods  string `envconfig:"CORS_ALLOW_METHODS" required:"false" default:"GET,POST,HEAD,PUT,DELETE,PATCH"`
+	CORSExposeHeaders string `envconfig:"CORS_EXPOSE_HEADERS" required:"false" default:"*"`
 
 	// Logging
 	LogLevel         string `envconfig:"LOG_LEVEL" required:"false" default:"INFO"`
