@@ -24,7 +24,6 @@ type JobORM struct {
 	CreatedTimestamp int64
 	EndBlockNumber   int64
 	Hash             string `gorm:"primary_key"`
-	IsCompleted      bool
 	IsHead           bool
 	NumClaims        int64
 	StartBlockNumber int64
@@ -51,7 +50,6 @@ func (m *Job) ToORM(ctx context.Context) (JobORM, error) {
 	to.EndBlockNumber = m.EndBlockNumber
 	to.NumClaims = m.NumClaims
 	to.IsHead = m.IsHead
-	to.IsCompleted = m.IsCompleted
 	if posthook, ok := interface{}(m).(JobWithAfterToORM); ok {
 		err = posthook.AfterToORM(ctx, &to)
 	}
@@ -74,7 +72,6 @@ func (m *JobORM) ToPB(ctx context.Context) (Job, error) {
 	to.EndBlockNumber = m.EndBlockNumber
 	to.NumClaims = m.NumClaims
 	to.IsHead = m.IsHead
-	to.IsCompleted = m.IsCompleted
 	if posthook, ok := interface{}(m).(JobWithAfterToPB); ok {
 		err = posthook.AfterToPB(ctx, &to)
 	}
@@ -252,10 +249,6 @@ func DefaultApplyFieldMaskJob(ctx context.Context, patchee *Job, patcher *Job, u
 		}
 		if f == prefix+"IsHead" {
 			patchee.IsHead = patcher.IsHead
-			continue
-		}
-		if f == prefix+"IsCompleted" {
-			patchee.IsCompleted = patcher.IsCompleted
 			continue
 		}
 	}

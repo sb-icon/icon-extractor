@@ -21,7 +21,11 @@ func AddHandlers(app *fiber.App) {
 // @Accept */*
 // @Produce json
 // @Router /api/v1/create-job [post]
+// @Param start_block_number body int true ""
+// @Param end_block_number body int true ""
+// @Param is_head body bool true ""
 func handlerCreateJob(c *fiber.Ctx) error {
 
+	// TODO
 	return c.SendString("asdasdasd")
 }
