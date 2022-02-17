@@ -4,21 +4,29 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 
 	"github.com/geometry-labs/icon-go-etl/config"
+	"github.com/geometry-labs/icon-go-etl/crud"
 	"github.com/geometry-labs/icon-go-etl/service"
+	"github.com/geometry-labs/icon-go-etl/transformer"
 )
 
-type Job struct {
-	startBlockNumber int64 // Inclusive
-	endBlockNumber   int64 // Exclusive
+func Start() {
+	// NOTE must start after tranformer is started
+
+	for i := 0; i < config.Config.NumExtractors; i++ {
+		e := Extractor{
+			transformer.RawBlockChannel,
+		}
+
+		e.Start()
+	}
 }
 
 type Extractor struct {
-	jobQueue    chan Job                                            // Input
-	jobCommit   chan Job                                            // Output
 	blockOutput chan service.IconNodeResponseGetBlockByHeightResult // Output
 }
 
@@ -29,15 +37,35 @@ func (e Extractor) Start() {
 
 func (e Extractor) start() {
 
-	// Loop forever, read job queue
+	// Loop forever, read claim
 	for {
 
-		// Wait for a job
-		job := <-e.jobQueue
+		///////////////
+		// Get claim //
+		///////////////
+		claim, err := crud.GetClaimCrud().SelectOneClaim()
+		if err != nil {
+			zap.S().Warn(
+				"Routine=", "Extractor, ",
+				"Step=", "Get claim, ",
+				"Error=", err.Error(),
+				" - Sleeping 1 second...",
+			)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		if claim.StartBlockNumber > claim.EndBlockNumber {
+			zap.S().Warn(
+				"Routine=", "Extractor, ",
+				"Step=", "Get claim, ",
+				" - Start block number greater than end block number...skipping claim",
+			)
+			continue
+		}
 
-		blockNumberQueue := make([]int64, job.endBlockNumber-job.startBlockNumber)
+		blockNumberQueue := make([]int64, claim.EndBlockNumber-claim.StartBlockNumber)
 		for iB := range blockNumberQueue {
-			blockNumberQueue[iB] = job.startBlockNumber + int64(iB)
+			blockNumberQueue[iB] = claim.StartBlockNumber + int64(iB)
 		}
 
 		// Loop through block numbers in queue
@@ -200,7 +228,6 @@ func (e Extractor) start() {
 				/////////////////
 				transactionHashQueue = transactionHashQueue[batchSize:]
 				if len(transactionHashQueue) == 0 {
-					// Done with job
 					break
 				}
 			}
@@ -217,12 +244,36 @@ func (e Extractor) start() {
 			/////////////////
 			blockNumberQueue = blockNumberQueue[batchSize:]
 			if len(blockNumberQueue) == 0 {
-				// Done with job
-				break
+				if claim.IsHead == true {
+					// keep going
+					blockNumberQueue = append(blockNumberQueue, claim.EndBlockNumber)
+					claim.EndBlockNumber++
+				} else {
+					// Done with claim
+					break
+				}
 			}
 		}
 
-		// Commit job
-		e.jobCommit <- job
+		//////////////////
+		// Commit claim //
+		//////////////////
+		// Retry until success
+		for {
+			err = crud.GetClaimCrud().UpdateOneComplete(claim)
+			if err != nil {
+				zap.S().Warn(
+					"Routine=", "Extractor, ",
+					"Step=", "Commit claim, ",
+					"Error=", err.Error(),
+					" - Sleeping 1 second...",
+				)
+				time.Sleep(1 * time.Second)
+				continue
+			}
+
+			// Success
+			break
+		}
 	}
 }

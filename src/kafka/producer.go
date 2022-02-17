@@ -66,7 +66,8 @@ func (k *KafkaTopicProducer) produceTopic() {
 			zap.S().Warn("Producer ", k.TopicName, ": Err sending message=", err.Error())
 		}
 
-		zap.S().Info("Topic=", k.TopicName, " Partition=", partition, " offset=", offset, " - Produced message to kafka")
+		topicMessageKey, _ := topicMessage.Key.Encode()
+		zap.S().Info("Topic=", k.TopicName, " Partition=", partition, " offset=", offset, " key=", string(topicMessageKey), " - Produced message to kafka")
 	}
 }
 

@@ -10,6 +10,8 @@ type configType struct {
 	Name        string `envconfig:"NAME" required:"false" default:"icon-go-etl"`
 	NetworkName string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
 
+	NumExtractors int `envconfig:"NUM_EXTRACTORS" required:"false" default:"1"`
+
 	// Logging
 	LogLevel         string `envconfig:"LOG_LEVEL" required:"false" default:"INFO"`
 	LogToFile        bool   `envconfig:"LOG_TO_FILE" required:"false" default:"false"`
@@ -25,6 +27,21 @@ type configType struct {
 	KafkaBrokerURL        string `envconfig:"KAFKA_BROKER_URL" required:"false" default:"localhost:29092"`
 	KafkaBlocksTopic      string `envconfig:"KAFKA_PRODUCER_TOPIC" required:"false" default:"icon-blocks"`
 	KafkaDeadMessageTopic string `envconfig:"KAFKA_DEAD_MESSAGE_TOPIC" required:"false" default:"icon-blocks-dead"`
+
+	// DB
+	DbDriver             string `envconfig:"DB_DRIVER" required:"false" default:"postgres"`
+	DbHost               string `envconfig:"DB_HOST" required:"false" default:"localhost"`
+	DbPort               string `envconfig:"DB_PORT" required:"false" default:"5432"`
+	DbUser               string `envconfig:"DB_USER" required:"false" default:"postgres"`
+	DbPassword           string `envconfig:"DB_PASSWORD" required:"false" default:"changeme"`
+	DbName               string `envconfig:"DB_DBNAME" required:"false" default:"postgres"`
+	DbSslmode            string `envconfig:"DB_SSL_MODE" required:"false" default:"disable"`
+	DbTimezone           string `envconfig:"DB_TIMEZONE" required:"false" default:"UTC"`
+	DbMaxIdleConnections int    `envconfig:"DB_MAX_IDLE_CONNECTIONS" required:"false" default:"2"`
+	DbMaxOpenConnections int    `envconfig:"DB_MAX_OPEN_CONNECTIONS" required:"false" default:"10"`
+
+	// GORM
+	GormLoggingThresholdMilli int `envconfig:"GORM_LOGGING_THRESHOLD_MILLI" required:"false" default:"250"`
 }
 
 // Config - runtime config struct

@@ -1,16 +1,29 @@
 version: "3.7"
 
 x-env: &env
+  # General
   NAME: "blocks"
   NETWORK_NAME: "mainnet"
 
+  # Logging
   LOG_LEVEL: "DEBUG"
   LOG_TO_FILE: "false"
   LOG_FILE_NAME: ""
   LOG_FORMAT: "console"
   LOG_IS_DEVELOPMENT: "true"
 
+  # Kakfa
   KAFKA_BROKER_URL: "kafka:9092"
+
+  # DB
+  DB_DRIVER: "postgres"
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_USER: "postgres"
+  DB_PASSWORD: "changeme"
+  DB_DBNAME: "postgres"
+  DB_SSL_MODE: "disable"
+  DB_TIMEZONE: "UTC"
 
 services:
   etl:

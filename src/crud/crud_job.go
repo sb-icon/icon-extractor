@@ -86,7 +86,7 @@ func StartJobLoader() {
 			//////////////////////
 			// Load to postgres //
 			//////////////////////
-			err = GetJobCrud().UpsertOne(newJob)
+			err := GetJobCrud().UpsertOne(newJob)
 			if err != nil {
 				// Postgres error
 				zap.S().Fatal("Loader=Job, Hash=", newJob.Hash, " - Error: ", err.Error())

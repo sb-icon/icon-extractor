@@ -16,7 +16,7 @@ func main() {
 
 	kafka.StartProducers()
 	transformer.StartTransformer()
-	extractor.StartManager()
+	extractor.Start()
 
 	global.WaitShutdownSig()
 }
