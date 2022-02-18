@@ -11,28 +11,32 @@ import (
 )
 
 type KafkaTopicProducer struct {
-	BrokerURL string
-	TopicName string
-	TopicChan chan *sarama.ProducerMessage
+	BrokerURL       string
+	TopicName       string
+	TopicPartitions int
+	TopicChan       chan *sarama.ProducerMessage
 }
 
-// map[Topic_Name] -> Producer
+// map[TopicName] -> Producer
 var KafkaTopicProducers = map[string]*KafkaTopicProducer{}
 
 func StartProducers() {
 	kafkaBroker := config.Config.KafkaBrokerURL
 	blocksTopic := config.Config.KafkaBlocksTopic
+	blocksPartitions := config.Config.KafkaBlocksPartitions
 	deadMessageTopic := config.Config.KafkaDeadMessageTopic
 
 	KafkaTopicProducers[blocksTopic] = &KafkaTopicProducer{
 		kafkaBroker,
 		blocksTopic,
+		blocksPartitions,
 		make(chan *sarama.ProducerMessage),
 	}
 
 	KafkaTopicProducers[deadMessageTopic] = &KafkaTopicProducer{
 		kafkaBroker,
 		deadMessageTopic,
+		1,
 		make(chan *sarama.ProducerMessage),
 	}
 
@@ -42,14 +46,39 @@ func StartProducers() {
 
 func (k *KafkaTopicProducer) produceTopic() {
 	config := sarama.NewConfig()
+
+	//////////////////
+	// Create topic //
+	//////////////////
+	admin, err := sarama.NewClusterAdmin([]string{k.BrokerURL}, config)
+	if err != nil {
+		zap.S().Fatal("KAFKA ADMIN ERROR: ", err.Error())
+	}
+	defer func() { _ = admin.Close() }()
+
+	// check if topic is already made
+	topics, err := admin.ListTopics()
+	if _, ok := topics[k.TopicName]; ok == false {
+
+		// Create topic
+		err = admin.CreateTopic(k.TopicName, &sarama.TopicDetail{
+			NumPartitions:     int32(k.TopicPartitions),
+			ReplicationFactor: 1,
+		}, false)
+		if err != nil {
+			zap.S().Fatal("Error while creating topic: ", err.Error())
+		}
+	}
+
+	/////////////////////
+	// Create producer //
+	/////////////////////
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
-
 	producer, err := getProducer(k, config)
 	if err != nil {
-		zap.S().Warn("KAFKA PRODUCER ERROR: Finally Connection cannot be established")
-		return
+		zap.S().Fatal("KAFKA PRODUCER ERROR: Finally Connection cannot be established")
 	}
 
 	defer func() {

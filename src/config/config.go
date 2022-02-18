@@ -11,7 +11,7 @@ type configType struct {
 	// General
 	Name          string `envconfig:"NAME" required:"false" default:"icon-go-etl"`
 	NetworkName   string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
-	NumExtractors int    `envconfig:"NUM_EXTRACTORS" required:"false" default:"0"`
+	NumExtractors int    `envconfig:"NUM_EXTRACTORS" required:"false" default:"4"`
 	MaxClaimSize  int    `envconfig:"MAX_CLAIM_SIZE" required:"false" default:"1000"`
 
 	// API
@@ -36,6 +36,7 @@ type configType struct {
 	// Kafka
 	KafkaBrokerURL        string `envconfig:"KAFKA_BROKER_URL" required:"false" default:"localhost:29092"`
 	KafkaBlocksTopic      string `envconfig:"KAFKA_PRODUCER_TOPIC" required:"false" default:"icon-blocks"`
+	KafkaBlocksPartitions int    `envconfig:"KAFKA_PRODUCER_PARTITIONS" required:"false" default:"12"`
 	KafkaDeadMessageTopic string `envconfig:"KAFKA_DEAD_MESSAGE_TOPIC" required:"false" default:"icon-blocks-dead"`
 
 	// DB
