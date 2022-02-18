@@ -71,8 +71,10 @@ func handlerCreateJob(c *fiber.Ctx) error {
 	jobHash.Write([]byte(fmt.Sprintf("%v", job)))
 	job.Hash = fmt.Sprintf("%x", jobHash.Sum(nil))
 
+	// Insert to DB
+	crud.GetJobCrud().LoaderChannel <- job
+
 	// Create claims
-	claims := []*models.Claim{}
 	for i := 0; i < int(job.NumClaims); i++ {
 		claim := &models.Claim{}
 
@@ -89,14 +91,7 @@ func handlerCreateJob(c *fiber.Ctx) error {
 			claim.IsHead = job.IsHead
 		}
 
-		claims = append(claims, claim)
-	}
-
-	////////////////////
-	// Insert into DB //
-	////////////////////
-	crud.GetJobCrud().LoaderChannel <- job
-	for _, claim := range claims {
+		// Insert to DB
 		crud.GetClaimCrud().LoaderChannel <- claim
 	}
 

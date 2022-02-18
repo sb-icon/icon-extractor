@@ -11,7 +11,7 @@ type configType struct {
 	// General
 	Name          string `envconfig:"NAME" required:"false" default:"icon-go-etl"`
 	NetworkName   string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
-	NumExtractors int    `envconfig:"NUM_EXTRACTORS" required:"false" default:"4"`
+	NumExtractors int    `envconfig:"NUM_EXTRACTORS" required:"false" default:"0"`
 	MaxClaimSize  int    `envconfig:"MAX_CLAIM_SIZE" required:"false" default:"1000"`
 
 	// API
