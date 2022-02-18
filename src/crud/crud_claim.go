@@ -62,6 +62,8 @@ func (m *ClaimCrud) SelectOneClaim() (*models.Claim, error) {
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 
+		// TODO bug
+		// FOR UPDATE NOWAIT
 		tx = tx.
 			Where("is_claimed = ?", false).
 			First(claim)

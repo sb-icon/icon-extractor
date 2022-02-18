@@ -73,9 +73,20 @@ func startTransformer() {
 			block.Transactions[iT].Hash = rawTransaction.TransactionReceipt.TxHash
 
 			// Timestamp
-			if rawTransaction.Timestamp != "" {
-				transactionTimestamp, _ := strconv.ParseInt(rawTransaction.Timestamp[2:], 16, 64)
-				block.Transactions[iT].Timestamp = transactionTimestamp
+			if rawTransactionTimestamp, ok := rawTransaction.Timestamp.(float64); ok == true {
+				// Number timestamp
+				block.Transactions[iT].Timestamp = int64(rawTransactionTimestamp)
+			} else if rawTransactionTimestamp, ok := rawTransaction.Timestamp.(string); ok == true {
+				// String timestamp
+				if rawTransactionTimestamp != "" && rawTransactionTimestamp[2:] == "0x" {
+					// Hex
+					transactionTimestamp, _ := strconv.ParseInt(rawTransactionTimestamp[2:], 16, 64)
+					block.Transactions[iT].Timestamp = transactionTimestamp
+				} else {
+					// Dec
+					transactionTimestamp, _ := strconv.ParseInt(rawTransactionTimestamp, 10, 64)
+					block.Transactions[iT].Timestamp = transactionTimestamp
+				}
 			}
 
 			// Transaction Index

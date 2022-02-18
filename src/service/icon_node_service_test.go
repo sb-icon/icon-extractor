@@ -20,6 +20,14 @@ func TestIconNodeServiceGetBlockByHeight(t *testing.T) {
 	blocks, err := IconNodeServiceGetBlockByHeight([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
 	assert.Equal(nil, err)
 	assert.Equal(10, len(blocks))
+
+	blocks, err = IconNodeServiceGetBlockByHeight([]int64{11082})
+	assert.Equal(nil, err)
+	assert.Equal(1, len(blocks))
+
+	blocks, err = IconNodeServiceGetBlockByHeight([]int64{10501})
+	assert.Equal(nil, err)
+	assert.Equal(1, len(blocks))
 }
 
 func TestIconNodeServiceGetTransactionByHash(t *testing.T) {

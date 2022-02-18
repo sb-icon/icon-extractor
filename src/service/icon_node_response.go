@@ -23,7 +23,7 @@ type IconNodeResponseGetBlockByHeightResult struct {
 type IconNodeResponseGetBlockByHeightTransaction struct {
 	Data               interface{}                                `json:"data"`
 	DataType           string                                     `json:"dataType"`
-	Timestamp          string                                     `json:"timestamp"`
+	Timestamp          interface{}                                `json:"timestamp"`
 	TxHashV1           string                                     `json:"tx_hash"`
 	TxHashV3           string                                     `json:"txHash"`
 	TxHash             string                                     // Normalize from V1 and V3
