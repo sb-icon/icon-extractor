@@ -92,6 +92,27 @@ func (m *ClaimCrud) SelectOneClaim() (*models.Claim, error) {
 	return claim, nil
 }
 
+func (m *ClaimCrud) SelectOneClaimHead() (*models.Claim, error) {
+	db := m.db
+
+	// NOTE Head claims should never set is_claim to true
+	// NOTE Head claims should never set is_completed to true
+
+	// Set table
+	db = db.Model(&[]models.Claim{})
+
+	// Job Hash - always "HEAD_CLAIM"
+	db = db.Where("job_hash = ?", "HEAD_CLAIM")
+
+	// Claim Index - always 0
+	db = db.Where("claim_index = ?", 0)
+
+	claim := &models.Claim{}
+	db = db.First(claim)
+
+	return claim, db.Error
+}
+
 func (m *ClaimCrud) UpdateOneComplete(claim *models.Claim) error {
 	db := m.db
 

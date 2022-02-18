@@ -5,6 +5,13 @@ x-env: &env
   NAME: "blocks"
   NETWORK_NAME: "mainnet"
 
+  # Extractors
+  START_CLAIM_EXTRACTORS: "false"
+  NUM_CLAIM_EXTRACTORS: "4"
+  MAX_CLAIM_SIZE: "1000"
+  START_HEAD_EXTRACTOR: "true"
+  HEAD_EXTRACTOR_START_BLOCK: "46353587"
+
   # Logging
   LOG_LEVEL: "DEBUG"
   LOG_TO_FILE: "false"

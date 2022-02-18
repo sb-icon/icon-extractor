@@ -12,7 +12,6 @@ message Job {
   int64 start_block_number = 3;
   int64 end_block_number = 4;
   int64 num_claims = 5;
-  bool is_head = 6; // If set to true, job will continue after reaching end_block_number
 }
 
 message Claim {
@@ -22,7 +21,7 @@ message Claim {
   int64 claim_index = 2 [(gorm.field).tag = {primary_key: true}];
   int64 start_block_number = 3;
   int64 end_block_number = 4;
-  bool is_head = 5; // If set to true, job will continue after reaching end_block_number
   bool is_claimed = 6;
   bool is_completed = 7;
+  bool is_head = 8;
 }

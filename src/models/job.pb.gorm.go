@@ -24,7 +24,6 @@ type JobORM struct {
 	CreatedTimestamp int64
 	EndBlockNumber   int64
 	Hash             string `gorm:"primary_key"`
-	IsHead           bool
 	NumClaims        int64
 	StartBlockNumber int64
 }
@@ -49,7 +48,6 @@ func (m *Job) ToORM(ctx context.Context) (JobORM, error) {
 	to.StartBlockNumber = m.StartBlockNumber
 	to.EndBlockNumber = m.EndBlockNumber
 	to.NumClaims = m.NumClaims
-	to.IsHead = m.IsHead
 	if posthook, ok := interface{}(m).(JobWithAfterToORM); ok {
 		err = posthook.AfterToORM(ctx, &to)
 	}
@@ -71,7 +69,6 @@ func (m *JobORM) ToPB(ctx context.Context) (Job, error) {
 	to.StartBlockNumber = m.StartBlockNumber
 	to.EndBlockNumber = m.EndBlockNumber
 	to.NumClaims = m.NumClaims
-	to.IsHead = m.IsHead
 	if posthook, ok := interface{}(m).(JobWithAfterToPB); ok {
 		err = posthook.AfterToPB(ctx, &to)
 	}
@@ -130,9 +127,9 @@ func (m *Claim) ToORM(ctx context.Context) (ClaimORM, error) {
 	to.ClaimIndex = m.ClaimIndex
 	to.StartBlockNumber = m.StartBlockNumber
 	to.EndBlockNumber = m.EndBlockNumber
-	to.IsHead = m.IsHead
 	to.IsClaimed = m.IsClaimed
 	to.IsCompleted = m.IsCompleted
+	to.IsHead = m.IsHead
 	if posthook, ok := interface{}(m).(ClaimWithAfterToORM); ok {
 		err = posthook.AfterToORM(ctx, &to)
 	}
@@ -153,9 +150,9 @@ func (m *ClaimORM) ToPB(ctx context.Context) (Claim, error) {
 	to.ClaimIndex = m.ClaimIndex
 	to.StartBlockNumber = m.StartBlockNumber
 	to.EndBlockNumber = m.EndBlockNumber
-	to.IsHead = m.IsHead
 	to.IsClaimed = m.IsClaimed
 	to.IsCompleted = m.IsCompleted
+	to.IsHead = m.IsHead
 	if posthook, ok := interface{}(m).(ClaimWithAfterToPB); ok {
 		err = posthook.AfterToPB(ctx, &to)
 	}
@@ -245,10 +242,6 @@ func DefaultApplyFieldMaskJob(ctx context.Context, patchee *Job, patcher *Job, u
 		}
 		if f == prefix+"NumClaims" {
 			patchee.NumClaims = patcher.NumClaims
-			continue
-		}
-		if f == prefix+"IsHead" {
-			patchee.IsHead = patcher.IsHead
 			continue
 		}
 	}
@@ -369,16 +362,16 @@ func DefaultApplyFieldMaskClaim(ctx context.Context, patchee *Claim, patcher *Cl
 			patchee.EndBlockNumber = patcher.EndBlockNumber
 			continue
 		}
-		if f == prefix+"IsHead" {
-			patchee.IsHead = patcher.IsHead
-			continue
-		}
 		if f == prefix+"IsClaimed" {
 			patchee.IsClaimed = patcher.IsClaimed
 			continue
 		}
 		if f == prefix+"IsCompleted" {
 			patchee.IsCompleted = patcher.IsCompleted
+			continue
+		}
+		if f == prefix+"IsHead" {
+			patchee.IsHead = patcher.IsHead
 			continue
 		}
 	}

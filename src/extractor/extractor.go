@@ -1,15 +1,18 @@
 package extractor
 
 import (
+	"errors"
 	"math"
 	"strconv"
 	"strings"
 	"time"
 
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 
 	"github.com/geometry-labs/icon-go-etl/config"
 	"github.com/geometry-labs/icon-go-etl/crud"
+	"github.com/geometry-labs/icon-go-etl/models"
 	"github.com/geometry-labs/icon-go-etl/service"
 	"github.com/geometry-labs/icon-go-etl/transformer"
 )
@@ -17,12 +20,23 @@ import (
 func Start() {
 	// NOTE must start after tranformer is started
 
-	for i := 0; i < config.Config.NumExtractors; i++ {
+	// Claim extractors
+	if config.Config.StartClaimExtractors == true {
+		for i := 0; i < config.Config.NumClaimExtractors; i++ {
+			e := Extractor{
+				transformer.RawBlockChannel,
+			}
+
+			e.Start(false)
+		}
+	}
+
+	// Head extractor
+	if config.Config.StartHeadExtractor == true {
 		e := Extractor{
 			transformer.RawBlockChannel,
 		}
-
-		e.Start()
+		e.Start(true)
 	}
 }
 
@@ -30,42 +44,70 @@ type Extractor struct {
 	blockOutput chan service.IconNodeResponseGetBlockByHeightResult // Output
 }
 
-func (e Extractor) Start() {
+func (e Extractor) Start(isHead bool) {
 
-	go e.start()
+	go e.start(isHead)
 }
 
-func (e Extractor) start() {
+func (e Extractor) start(isHead bool) {
 
-	// Loop forever, read claim
+	// Loop forever, fill queue
 	for {
+		var blockNumberQueue []int64
+		var claim *models.Claim
+		var err error
 
-		///////////////
-		// Get claim //
-		///////////////
-		claim, err := crud.GetClaimCrud().SelectOneClaim()
-		if err != nil {
-			zap.S().Warn(
-				"Routine=", "Extractor, ",
-				"Step=", "Get claim, ",
-				"Error=", err.Error(),
-				" - Sleeping 1 second...",
-			)
-			time.Sleep(1 * time.Second)
-			continue
-		}
-		if claim.StartBlockNumber > claim.EndBlockNumber {
-			zap.S().Warn(
-				"Routine=", "Extractor, ",
-				"Step=", "Get claim, ",
-				" - Start block number greater than end block number...skipping claim",
-			)
-			continue
-		}
+		///////////////////////////////
+		// Create block number queue //
+		///////////////////////////////
+		if isHead == true {
+			// Head extractor
+			claim, err = crud.GetClaimCrud().SelectOneClaimHead()
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				// create claim
+				claim = &models.Claim{}
+				claim.JobHash = "HEAD_CLAIM"
+				claim.ClaimIndex = 0
+				claim.StartBlockNumber = int64(config.Config.HeadExtractorStartBlock)
+				claim.EndBlockNumber = int64(config.Config.HeadExtractorStartBlock)
+				claim.IsClaimed = false   // NOTE head claims are never claimed by one extractor
+				claim.IsCompleted = false // NOTE head claims are never completed
+				claim.IsHead = true
 
-		blockNumberQueue := make([]int64, claim.EndBlockNumber-claim.StartBlockNumber)
-		for iB := range blockNumberQueue {
-			blockNumberQueue[iB] = claim.StartBlockNumber + int64(iB)
+				crud.GetClaimCrud().LoaderChannel <- claim
+			} else if err != nil {
+				// Postgres error
+				zap.S().Fatal(err.Error())
+			}
+
+			blockNumberQueue = make([]int64, 1)
+			blockNumberQueue[0] = claim.StartBlockNumber
+		} else {
+			// Claim extractor
+			claim, err = crud.GetClaimCrud().SelectOneClaim()
+			if err != nil {
+				zap.S().Warn(
+					"Routine=", "Extractor, ",
+					"Step=", "Get claim, ",
+					"Error=", err.Error(),
+					" - Sleeping 1 second...",
+				)
+				time.Sleep(1 * time.Second)
+				continue
+			}
+			if claim.StartBlockNumber > claim.EndBlockNumber {
+				zap.S().Warn(
+					"Routine=", "Extractor, ",
+					"Step=", "Get claim, ",
+					" - Start block number greater than end block number...skipping claim",
+				)
+				continue
+			}
+
+			blockNumberQueue = make([]int64, claim.EndBlockNumber-claim.StartBlockNumber)
+			for iB := range blockNumberQueue {
+				blockNumberQueue[iB] = claim.StartBlockNumber + int64(iB)
+			}
 		}
 
 		// Loop through block numbers in queue
@@ -244,11 +286,17 @@ func (e Extractor) start() {
 			/////////////////
 			blockNumberQueue = blockNumberQueue[batchSize:]
 			if len(blockNumberQueue) == 0 {
-				if claim.IsHead == true {
-					// keep going
+				if isHead == true {
+					// Head extractor
+					// Add next block to queue
 					blockNumberQueue = append(blockNumberQueue, claim.EndBlockNumber)
+					claim.StartBlockNumber++
 					claim.EndBlockNumber++
+
+					// commit to postgres
+					crud.GetClaimCrud().LoaderChannel <- claim
 				} else {
+					// Claim extracto
 					// Done with claim
 					break
 				}

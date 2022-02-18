@@ -16,9 +16,8 @@ import (
 )
 
 type JobsBody struct {
-	StartBlockNumber int  `json:"start_block_number"`
-	EndBlockNumber   int  `json:"end_block_number"`
-	IsHead           bool `json:"is_head"`
+	StartBlockNumber int `json:"start_block_number"`
+	EndBlockNumber   int `json:"end_block_number"`
 }
 
 // BlocksAddHandlers - add blocks endpoints to fiber router
@@ -61,7 +60,6 @@ func handlerCreateJob(c *fiber.Ctx) error {
 	job := &models.Job{}
 	job.StartBlockNumber = int64(body.StartBlockNumber)
 	job.EndBlockNumber = int64(body.EndBlockNumber)
-	job.IsHead = body.IsHead
 	job.CreatedTimestamp = time.Now().Unix()
 	job.NumClaims = int64(math.Ceil(float64(body.EndBlockNumber-body.StartBlockNumber) / float64(config.Config.MaxClaimSize)))
 
@@ -84,12 +82,6 @@ func handlerCreateJob(c *fiber.Ctx) error {
 		claim.EndBlockNumber = claim.StartBlockNumber + int64(config.Config.MaxClaimSize)
 		claim.IsClaimed = false
 		claim.IsCompleted = false
-		claim.IsHead = false
-
-		// Only set last head claim, if is_head == true
-		if i == int(job.NumClaims)-1 {
-			claim.IsHead = job.IsHead
-		}
 
 		// Insert to DB
 		crud.GetClaimCrud().LoaderChannel <- claim

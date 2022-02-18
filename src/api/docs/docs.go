@@ -50,9 +50,6 @@ const docTemplate_swagger = `{
                 "end_block_number": {
                     "type": "integer"
                 },
-                "is_head": {
-                    "type": "boolean"
-                },
                 "start_block_number": {
                     "type": "integer"
                 }
