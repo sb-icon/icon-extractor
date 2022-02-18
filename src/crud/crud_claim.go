@@ -62,16 +62,14 @@ func (m *ClaimCrud) SelectOneClaim() (*models.Claim, error) {
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 
-		// TODO bug
-		// FOR UPDATE NOWAIT
-		tx = tx.
-			Where("is_claimed = ?", false).
-			First(claim)
+		// SELECT
+		tx = tx.Raw("SELECT * FROM claims WHERE is_claimed = ? FOR UPDATE NOWAIT", false).Scan(claim)
 		if tx.Error != nil {
 			// Rollback
 			return tx.Error
 		}
 
+		// UPDATE
 		tx = tx.
 			Where("job_hash = ?", claim.JobHash).
 			Where("claim_index = ?", claim.ClaimIndex).
