@@ -5,10 +5,11 @@ package models
 
 import (
 	fmt "fmt"
-	math "math"
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	math "math"
+	regexp "regexp"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -16,9 +17,29 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+var _regex_BlockETL_Hash = regexp.MustCompile(`^[a-f0-9]{64}$`)
+var _regex_BlockETL_ParentHash = regexp.MustCompile(`^[a-f0-9]{64}$`)
+var _regex_BlockETL_MerkleRootHash = regexp.MustCompile(`^[a-f0-9]{64}$`)
+var _regex_BlockETL_PeerId = regexp.MustCompile(`^hx[a-f0-9]{40}$`)
+
 func (this *BlockETL) Validate() error {
 	if !(this.Number > 0) {
 		return github_com_mwitkow_go_proto_validators.FieldError("Number", fmt.Errorf(`value '%v' must be greater than '0'`, this.Number))
+	}
+	if !_regex_BlockETL_Hash.MatchString(this.Hash) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Hash", fmt.Errorf(`value '%v' must be a string conforming to regex "^[a-f0-9]{64}$"`, this.Hash))
+	}
+	if !_regex_BlockETL_ParentHash.MatchString(this.ParentHash) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ParentHash", fmt.Errorf(`value '%v' must be a string conforming to regex "^[a-f0-9]{64}$"`, this.ParentHash))
+	}
+	if !_regex_BlockETL_MerkleRootHash.MatchString(this.MerkleRootHash) {
+		return github_com_mwitkow_go_proto_validators.FieldError("MerkleRootHash", fmt.Errorf(`value '%v' must be a string conforming to regex "^[a-f0-9]{64}$"`, this.MerkleRootHash))
+	}
+	if !_regex_BlockETL_PeerId.MatchString(this.PeerId) {
+		return github_com_mwitkow_go_proto_validators.FieldError("PeerId", fmt.Errorf(`value '%v' must be a string conforming to regex "^hx[a-f0-9]{40}$"`, this.PeerId))
+	}
+	if !(this.Timestamp > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", fmt.Errorf(`value '%v' must be greater than '0'`, this.Timestamp))
 	}
 	for _, item := range this.Transactions {
 		if item != nil {
@@ -29,7 +50,20 @@ func (this *BlockETL) Validate() error {
 	}
 	return nil
 }
+
+var _regex_TransactionETL_Hash = regexp.MustCompile(`^0x[a-f0-9]{64}$`)
+var _regex_TransactionETL_Status = regexp.MustCompile(`^0x[01]$`)
+
 func (this *TransactionETL) Validate() error {
+	if !_regex_TransactionETL_Hash.MatchString(this.Hash) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Hash", fmt.Errorf(`value '%v' must be a string conforming to regex "^0x[a-f0-9]{64}$"`, this.Hash))
+	}
+	if !(this.Timestamp > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", fmt.Errorf(`value '%v' must be greater than '0'`, this.Timestamp))
+	}
+	if !_regex_TransactionETL_Status.MatchString(this.Status) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Status", fmt.Errorf(`value '%v' must be a string conforming to regex "^0x[01]$"`, this.Status))
+	}
 	for _, item := range this.Logs {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -39,6 +73,12 @@ func (this *TransactionETL) Validate() error {
 	}
 	return nil
 }
+
+var _regex_LogETL_Address = regexp.MustCompile(`^cx[a-f0-9]{40}$`)
+
 func (this *LogETL) Validate() error {
+	if !_regex_LogETL_Address.MatchString(this.Address) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must be a string conforming to regex "^cx[a-f0-9]{40}$"`, this.Address))
+	}
 	return nil
 }
