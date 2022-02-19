@@ -7,12 +7,12 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 message BlockETL {
 
   int64 number = 1 [(validator.field) = {int_gt: 0}];
-  string hash = 2;
-  string parent_hash = 3;
-  string merkle_root_hash = 4;
-  string peer_id = 5;
+  string hash = 2 [(validator.field) = {regex:"^[a-f0-9]{64}$"}];
+  string parent_hash = 3 [(validator.field) = {regex:"^[a-f0-9]{64}$"}];
+  string merkle_root_hash = 4 [(validator.field) = {regex:"^[a-f0-9]{64}$"}];
+  string peer_id = 5 [(validator.field) = {regex:"^hx[a-f0-9]{40}$"}];
   string signature = 6;
-  int64 timestamp = 7;
+  int64 timestamp = 7 [(validator.field) = {int_gt: 0}];
   string version = 8;
 
   repeated TransactionETL transactions = 9;
@@ -20,15 +20,15 @@ message BlockETL {
 
 message TransactionETL {
 
-  string hash = 1;
-  int64 timestamp = 2;
+  string hash = 1 [(validator.field) = {regex:"^0x[a-f0-9]{64}$"}];
+  int64 timestamp = 2 [(validator.field) = {int_gt: 0}];
   int64 transaction_index = 3;
   string nonce = 4;
   string nid = 5;
   string from_address = 6;
   string to_address = 7;
   string value = 8;
-  string status = 9;
+  string status = 9 [(validator.field) = {regex:"^0x[01]$"}];
   string step_price = 10;
   string step_used = 11;
   string step_limit = 12;
@@ -44,7 +44,7 @@ message TransactionETL {
 }
 
 message LogETL {
-  string address = 1;
+  string address = 1 [(validator.field) = {regex:"^cx[a-f0-9]{40}$"}];
   repeated string indexed = 2;
   repeated string data = 3;
 }
