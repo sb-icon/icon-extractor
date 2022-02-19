@@ -2,9 +2,11 @@ syntax = "proto3";
 package models;
 option go_package = "./models";
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+
 message BlockETL {
 
-  int64 number = 1;
+  int64 number = 1 [(validator.field) = {int_gt: 0}];
   string hash = 2;
   string parent_hash = 3;
   string merkle_root_hash = 4;

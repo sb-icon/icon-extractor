@@ -29,7 +29,7 @@ func startTransformer() {
 		// Raw Block //
 		///////////////
 		rawBlock := <-RawBlockChannel
-		block := models.BlockETL{}
+		block := &models.BlockETL{}
 
 		/////////////////
 		// Parse Block //
@@ -167,17 +167,32 @@ func startTransformer() {
 		/////////////////
 		// Verify Data //
 		/////////////////
-		// TODO look into proto field assertions
-		// TODO DLQ
+		err := block.Validate()
+		if err != nil {
+			// Send block to DeadMessageTopic
+			messageKey := err.Error()
+			messageValue, _ := json.Marshal(block)
+
+			kafkaMessage := &sarama.ProducerMessage{
+				Topic:     config.Config.KafkaDeadMessageTopic,
+				Partition: -1,
+				Key:       sarama.StringEncoder(messageKey),
+				Value:     sarama.StringEncoder(string(messageValue)),
+			}
+
+			kafka.KafkaTopicProducers[config.Config.KafkaDeadMessageTopic].TopicChan <- kafkaMessage
+			continue
+		}
 
 		///////////////////
 		// Send to Kafka //
 		///////////////////
 		messageKey := strconv.FormatInt(block.Number, 10)
 
-		messageValue, err := proto.Marshal(&block)
+		messageValue, err := proto.Marshal(block)
 		if err != nil {
-			messageValue, _ = json.Marshal(&block)
+			// Send block to DeadMessageTopic
+			messageValue, _ = json.Marshal(block)
 
 			kafkaMessage := &sarama.ProducerMessage{
 				Topic:     config.Config.KafkaDeadMessageTopic,
