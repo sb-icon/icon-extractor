@@ -20,6 +20,9 @@ jobs:
         with:
           install: true
 
+      - name: Go mod tidy
+        run: cd src && go mod tidy
+
       - name: Bring up DBs
         run: make up-dbs
 
