@@ -78,14 +78,16 @@ func startTransformer() {
 				block.Transactions[iT].Timestamp = int64(rawTransactionTimestamp)
 			} else if rawTransactionTimestamp, ok := rawTransaction.Timestamp.(string); ok == true {
 				// String timestamp
-				if rawTransactionTimestamp != "" && rawTransactionTimestamp[2:] == "0x" {
+				if transactionTimestamp, err := strconv.ParseInt(rawTransactionTimestamp[2:], 16, 64); err == nil {
 					// Hex
-					transactionTimestamp, _ := strconv.ParseInt(rawTransactionTimestamp[2:], 16, 64)
+					block.Transactions[iT].Timestamp = transactionTimestamp
+				} else if transactionTimestamp, err := strconv.ParseInt(rawTransactionTimestamp, 10, 64); err == nil {
+					// Dec
 					block.Transactions[iT].Timestamp = transactionTimestamp
 				} else {
-					// Dec
-					transactionTimestamp, _ := strconv.ParseInt(rawTransactionTimestamp, 10, 64)
-					block.Transactions[iT].Timestamp = transactionTimestamp
+					// ERROR
+					// NOTE protobuf validator should catch
+					block.Transactions[iT].Timestamp = 0
 				}
 			}
 

@@ -13,10 +13,10 @@ type configType struct {
 	NetworkName string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
 
 	// Extractors
-	StartClaimExtractors    bool `envconfig:"START_CLAIM_EXTRACTORS" required:"false" default:"true"`
+	StartClaimExtractors    bool `envconfig:"START_CLAIM_EXTRACTORS" required:"false" default:"false"`
 	NumClaimExtractors      int  `envconfig:"NUM_EXTRACTORS" required:"false" default:"4"`
 	MaxClaimSize            int  `envconfig:"MAX_CLAIM_SIZE" required:"false" default:"1000"`
-	StartHeadExtractor      bool `envconfig:"START_HEAD_EXTRACTOR" required:"false" default:"false"`
+	StartHeadExtractor      bool `envconfig:"START_HEAD_EXTRACTOR" required:"false" default:"true"`
 	HeadExtractorStartBlock int  `envconfig:"HEAD_EXTRACTOR_START_BLOCK" required:"false" default:"46353771"`
 
 	// API

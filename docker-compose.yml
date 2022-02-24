@@ -6,7 +6,7 @@ x-env: &env
   NETWORK_NAME: "mainnet"
 
   # Extractors
-  START_CLAIM_EXTRACTORS: "false"
+  START_CLAIM_EXTRACTORS: "true"
   NUM_CLAIM_EXTRACTORS: "4"
   MAX_CLAIM_SIZE: "1000"
   START_HEAD_EXTRACTOR: "true"
@@ -37,5 +37,7 @@ services:
     build:
       context: .
       target: prod
+    ports:
+      - "8000:8000"
     environment:
       <<: *env
