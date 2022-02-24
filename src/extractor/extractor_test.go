@@ -29,11 +29,8 @@ func TestStart(t *testing.T) {
 	}
 	e.Start(true)
 
-	for {
+	block := <-blockOutputChannel
 
-		block := <-blockOutputChannel
-
-		// Assert values in block
-		assert.NotEqual(0, block.Height)
-	}
+	// Assert values in block
+	assert.NotEqual(0, block.Height)
 }
