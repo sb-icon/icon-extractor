@@ -83,6 +83,11 @@ func handlerCreateJob(c *fiber.Ctx) error {
 		claim.IsClaimed = false
 		claim.IsCompleted = false
 
+		// Last claim should not exceed job.EndBlockNumber
+		if i == int(job.NumClaims)-1 {
+			claim.EndBlockNumber = job.EndBlockNumber
+		}
+
 		// Insert to DB
 		crud.GetClaimCrud().LoaderChannel <- claim
 	}
