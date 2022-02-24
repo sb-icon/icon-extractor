@@ -8,7 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestClaimExtractors(t *testing.T) {
+// Config required:
+//   - START_HEAD_EXTRACTOR: true
+func TestHeadExtractors(t *testing.T) {
 	assert := assert.New(t)
 
 	/////////////
