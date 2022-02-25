@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
@@ -67,7 +68,6 @@ func TestBlockVersions(t *testing.T) {
 	}
 
 	c.SubscribeTopics([]string{"icon-blocks"}, nil)
-	i := 0
 	for {
 		msg, err := c.ReadMessage(-1)
 		assert.Equal(nil, err)
@@ -79,8 +79,16 @@ func TestBlockVersions(t *testing.T) {
 			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
 		}
 
-		// TODO verify blocks in blockVersions
-		break
+		// verify blocks in blockVersions
+		msgBlockNumber, err := strconv.Atoi(string(msg.Key))
+		assert.Equal(nil, err)
+		assert.NotEqual(0, msgBlockNumber)
+		if _, ok := blockNumbers[msgBlockNumber]; ok == true {
+			// TODO verify values
+			delete(blockNumbers, msgBlockNumber)
+		} else {
+			continue
+		}
 
 		keys := reflect.ValueOf(blockNumbers).MapKeys()
 		if len(keys) == 0 {
