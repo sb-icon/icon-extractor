@@ -50,7 +50,7 @@ func (k *KafkaTopicProducer) produceTopic() {
 	//////////////////
 	// Create topic //
 	//////////////////
-	admin, err := sarama.NewClusterAdmin([]string{k.BrokerURL}, config)
+	admin, err := getAdmin(k, config)
 	if err != nil {
 		zap.S().Fatal("KAFKA ADMIN ERROR: ", err.Error())
 	}
@@ -80,12 +80,7 @@ func (k *KafkaTopicProducer) produceTopic() {
 	if err != nil {
 		zap.S().Fatal("KAFKA PRODUCER ERROR: Finally Connection cannot be established")
 	}
-
-	defer func() {
-		if err := producer.Close(); err != nil {
-			zap.S().Warn(": ", err.Error())
-		}
-	}()
+	defer func() { _ = producer.Close() }()
 
 	for {
 		topicMessage := <-k.TopicChan
@@ -100,19 +95,34 @@ func (k *KafkaTopicProducer) produceTopic() {
 	}
 }
 
+func getAdmin(k *KafkaTopicProducer, config *sarama.Config) (sarama.ClusterAdmin, error) {
+	var admin sarama.ClusterAdmin
+	operation := func() error {
+		a, err := sarama.NewClusterAdmin([]string{k.BrokerURL}, config)
+		if err != nil {
+			zap.S().Warn("KAFKA ADMIN NEWCLUSTERADMIN WARN: ", err.Error())
+		} else {
+			admin = a
+		}
+		return err
+	}
+	neb := backoff.NewConstantBackOff(time.Second)
+	err := backoff.Retry(operation, neb)
+	return admin, err
+}
+
 func getProducer(k *KafkaTopicProducer, config *sarama.Config) (sarama.SyncProducer, error) {
 	var producer sarama.SyncProducer
 	operation := func() error {
 		pro, err := sarama.NewSyncProducer([]string{k.BrokerURL}, config)
 		if err != nil {
-			zap.S().Info("KAFKA PRODUCER NEWSYNCPRODUCER PANIC: ", err.Error())
+			zap.S().Warn("KAFKA PRODUCER NEWSYNCPRODUCER WARN: ", err.Error())
 		} else {
 			producer = pro
 		}
 		return err
 	}
-	neb := backoff.NewExponentialBackOff()
-	neb.MaxElapsedTime = time.Minute
+	neb := backoff.NewConstantBackOff(time.Second)
 	err := backoff.Retry(operation, neb)
 	return producer, err
 }
