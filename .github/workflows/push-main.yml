@@ -31,7 +31,7 @@ jobs:
         run: cd src && go test ./... -v
 
       - name: Bring up stack
-        run: make up
+        run: make up && sleep 10
 
       - name: Check stack
         run: make ps
