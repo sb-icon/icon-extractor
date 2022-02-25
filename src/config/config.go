@@ -13,7 +13,7 @@ type configType struct {
 	NetworkName string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
 
 	// Extractors
-	StartClaimExtractors    bool `envconfig:"START_CLAIM_EXTRACTORS" required:"false" default:"false"`
+	StartClaimExtractors    bool `envconfig:"START_CLAIM_EXTRACTORS" required:"false" default:"true"`
 	NumClaimExtractors      int  `envconfig:"NUM_EXTRACTORS" required:"false" default:"4"`
 	MaxClaimSize            int  `envconfig:"MAX_CLAIM_SIZE" required:"false" default:"1000"`
 	StartHeadExtractor      bool `envconfig:"START_HEAD_EXTRACTOR" required:"false" default:"true"`
