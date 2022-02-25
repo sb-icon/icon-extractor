@@ -83,7 +83,7 @@ func TestBlockVersions(t *testing.T) {
 		break
 
 		keys := reflect.ValueOf(blockNumbers).MapKeys()
-		if len(key) == 0 {
+		if len(keys) == 0 {
 			break
 		}
 	}
