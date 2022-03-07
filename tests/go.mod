@@ -1,4 +1,4 @@
-module github.com/geometry-labs/icon-go-etl-tests
+module github.com/sudoblockio/icon-go-etl-tests
 
 go 1.16
 
