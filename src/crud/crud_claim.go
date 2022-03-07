@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/geometry-labs/icon-go-etl/models"
+	"github.com/sudoblockio/icon-go-etl/models"
 )
 
 // ClaimCrud - type for claim table model

@@ -10,11 +10,11 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
-	"github.com/geometry-labs/icon-go-etl/config"
-	"github.com/geometry-labs/icon-go-etl/crud"
-	"github.com/geometry-labs/icon-go-etl/models"
-	"github.com/geometry-labs/icon-go-etl/service"
-	"github.com/geometry-labs/icon-go-etl/transformer"
+	"github.com/sudoblockio/icon-go-etl/config"
+	"github.com/sudoblockio/icon-go-etl/crud"
+	"github.com/sudoblockio/icon-go-etl/models"
+	"github.com/sudoblockio/icon-go-etl/service"
+	"github.com/sudoblockio/icon-go-etl/transformer"
 )
 
 func Start() {

@@ -7,7 +7,7 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"go.uber.org/zap"
 
-	"github.com/geometry-labs/icon-go-etl/config"
+	"github.com/sudoblockio/icon-go-etl/config"
 )
 
 type KafkaTopicProducer struct {

@@ -3,8 +3,8 @@ package service
 import (
 	"testing"
 
-	"github.com/geometry-labs/icon-go-etl/config"
 	"github.com/stretchr/testify/assert"
+	"github.com/sudoblockio/icon-go-etl/config"
 )
 
 // Runs before every test

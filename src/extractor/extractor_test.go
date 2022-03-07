@@ -3,10 +3,10 @@ package extractor
 import (
 	"testing"
 
-	"github.com/geometry-labs/icon-go-etl/config"
-	"github.com/geometry-labs/icon-go-etl/logging"
-	"github.com/geometry-labs/icon-go-etl/service"
 	"github.com/stretchr/testify/assert"
+	"github.com/sudoblockio/icon-go-etl/config"
+	"github.com/sudoblockio/icon-go-etl/logging"
+	"github.com/sudoblockio/icon-go-etl/service"
 )
 
 // Runs before every test

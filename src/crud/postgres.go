@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/geometry-labs/icon-go-etl/config"
+	"github.com/sudoblockio/icon-go-etl/config"
 )
 
 var postgresSession *gorm.DB
