@@ -45,12 +45,12 @@ func StartProducers() {
 }
 
 func (k *KafkaTopicProducer) produceTopic() {
-	config := sarama.NewConfig()
+	saramaConfig := sarama.NewConfig()
 
 	//////////////////
 	// Create topic //
 	//////////////////
-	admin, err := getAdmin(k, config)
+	admin, err := getAdmin(k, saramaConfig)
 	if err != nil {
 		zap.S().Fatal("KAFKA ADMIN ERROR: ", err.Error())
 	}
@@ -73,10 +73,10 @@ func (k *KafkaTopicProducer) produceTopic() {
 	/////////////////////
 	// Create producer //
 	/////////////////////
-	config.Producer.Partitioner = sarama.NewRandomPartitioner
-	config.Producer.RequiredAcks = sarama.WaitForAll
-	config.Producer.Return.Successes = true
-	producer, err := getProducer(k, config)
+	saramaConfig.Producer.Partitioner = sarama.NewRandomPartitioner
+	saramaConfig.Producer.RequiredAcks = sarama.WaitForAll
+	saramaConfig.Producer.Return.Successes = true
+	producer, err := getProducer(k, saramaConfig)
 	if err != nil {
 		zap.S().Fatal("KAFKA PRODUCER ERROR: Finally Connection cannot be established")
 	}
@@ -95,10 +95,10 @@ func (k *KafkaTopicProducer) produceTopic() {
 	}
 }
 
-func getAdmin(k *KafkaTopicProducer, config *sarama.Config) (sarama.ClusterAdmin, error) {
+func getAdmin(k *KafkaTopicProducer, saramaConfig *sarama.Config) (sarama.ClusterAdmin, error) {
 	var admin sarama.ClusterAdmin
 	operation := func() error {
-		a, err := sarama.NewClusterAdmin([]string{k.BrokerURL}, config)
+		a, err := sarama.NewClusterAdmin([]string{k.BrokerURL}, saramaConfig)
 		if err != nil {
 			zap.S().Warn("KAFKA ADMIN NEWCLUSTERADMIN WARN: ", err.Error())
 		} else {
@@ -111,10 +111,10 @@ func getAdmin(k *KafkaTopicProducer, config *sarama.Config) (sarama.ClusterAdmin
 	return admin, err
 }
 
-func getProducer(k *KafkaTopicProducer, config *sarama.Config) (sarama.SyncProducer, error) {
+func getProducer(k *KafkaTopicProducer, saramaConfig *sarama.Config) (sarama.SyncProducer, error) {
 	var producer sarama.SyncProducer
 	operation := func() error {
-		pro, err := sarama.NewSyncProducer([]string{k.BrokerURL}, config)
+		pro, err := sarama.NewSyncProducer([]string{k.BrokerURL}, saramaConfig)
 		if err != nil {
 			zap.S().Warn("KAFKA PRODUCER NEWSYNCPRODUCER WARN: ", err.Error())
 		} else {
