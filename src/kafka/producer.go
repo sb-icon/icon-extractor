@@ -66,7 +66,7 @@ func (k *KafkaTopicProducer) produceTopic() {
 			ReplicationFactor: 1,
 		}, false)
 		if err != nil {
-			zap.S().Fatal("Error while creating topic: ", err.Error())
+			zap.S().Warn("Error while creating topic: ", err.Error())
 		}
 	}
 
