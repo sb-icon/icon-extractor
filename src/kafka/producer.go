@@ -100,7 +100,7 @@ func getAdmin(brokerURL string, saramaConfig *sarama.Config) (sarama.ClusterAdmi
 	operation := func() error {
 		a, err := sarama.NewClusterAdmin([]string{brokerURL}, saramaConfig)
 		if err != nil {
-			zap.S().Warn("KAFKA ADMIN NEWCLUSTERADMIN WARN: ", err.Error())
+			zap.S().Info("KAFKA ADMIN NEWCLUSTERADMIN WARN: ", err.Error())
 		} else {
 			admin = a
 		}
@@ -116,7 +116,7 @@ func getProducer(brokerURL string, saramaConfig *sarama.Config) (sarama.SyncProd
 	operation := func() error {
 		pro, err := sarama.NewSyncProducer([]string{brokerURL}, saramaConfig)
 		if err != nil {
-			zap.S().Warn("KAFKA PRODUCER NEWSYNCPRODUCER WARN: ", err.Error())
+			zap.S().Info("KAFKA PRODUCER NEWSYNCPRODUCER WARN: ", err.Error())
 		} else {
 			producer = pro
 		}

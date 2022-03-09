@@ -293,8 +293,10 @@ func (e Extractor) start(isHead bool) {
 					// Add next block to queue
 					claim.StartBlockNumber = claim.EndBlockNumber
 					claim.EndBlockNumber = claim.StartBlockNumber + int64(config.Config.MaxClaimSize)
+
+					blockNumberQueue = make([]int64, claim.EndBlockNumber-claim.StartBlockNumber)
 					for iB := range blockNumberQueue {
-						blockNumberQueue = append(blockNumberQueue, claim.StartBlockNumber+int64(iB))
+						blockNumberQueue[iB] = claim.StartBlockNumber + int64(iB)
 					}
 
 					// commit to postgres
