@@ -69,7 +69,7 @@ func (e Extractor) start(isHead bool) {
 				claim.JobHash = "HEAD_CLAIM"
 				claim.ClaimIndex = 0
 				claim.StartBlockNumber = int64(config.Config.HeadExtractorStartBlock)
-				claim.EndBlockNumber = int64(config.Config.HeadExtractorStartBlock)
+				claim.EndBlockNumber = int64(config.Config.HeadExtractorStartBlock + config.Config.MaxClaimSize)
 				claim.IsClaimed = false   // NOTE head claims are never claimed by one extractor
 				claim.IsCompleted = false // NOTE head claims are never completed
 				claim.IsHead = true
@@ -80,8 +80,10 @@ func (e Extractor) start(isHead bool) {
 				zap.S().Fatal(err.Error())
 			}
 
-			blockNumberQueue = make([]int64, 1)
-			blockNumberQueue[0] = claim.StartBlockNumber
+			blockNumberQueue = make([]int64, claim.EndBlockNumber-claim.StartBlockNumber)
+			for iB := range blockNumberQueue {
+				blockNumberQueue[iB] = claim.StartBlockNumber + int64(iB)
+			}
 		} else {
 			// Claim extractor
 			claim, err = crud.GetClaimCrud().SelectOneClaim()
@@ -289,14 +291,16 @@ func (e Extractor) start(isHead bool) {
 				if isHead == true {
 					// Head extractor
 					// Add next block to queue
-					blockNumberQueue = append(blockNumberQueue, claim.EndBlockNumber)
-					claim.StartBlockNumber++
-					claim.EndBlockNumber++
+					claim.StartBlockNumber = claim.EndBlockNumber
+					claim.EndBlockNumber = claim.StartBlockNumber + int64(config.Config.MaxClaimSize)
+					for iB := range blockNumberQueue {
+						blockNumberQueue = append(blockNumberQueue, claim.StartBlockNumber+int64(iB))
+					}
 
 					// commit to postgres
 					crud.GetClaimCrud().LoaderChannel <- claim
 				} else {
-					// Claim extracto
+					// Claim extracted
 					// Done with claim
 					break
 				}

@@ -85,3 +85,4 @@ services:
       PORT: 9021
     networks:
       - default
+    restart: on-failure
