@@ -18,7 +18,7 @@ import (
 )
 
 func Start() {
-	// NOTE must start after tranformer is started
+	// NOTE must start after tranformer is started in main.go
 
 	// Claim extractors
 	if config.Config.StartClaimExtractors == true {
