@@ -2,7 +2,7 @@ version: "3.7"
 
 x-extractor-env: &extractor-env
   # General
-  NAME: "blocks"
+  NAME: "icon-extractor"
   NETWORK_NAME: "mainnet"
 
   # Extractors
