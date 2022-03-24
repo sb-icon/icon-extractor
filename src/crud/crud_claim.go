@@ -62,6 +62,9 @@ func (m *ClaimCrud) SelectOneClaim() (*models.Claim, error) {
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 
+		// Set table
+		tx = tx.Model(&[]models.Claim{})
+
 		// SELECT
 		tx = tx.Raw("SELECT * FROM claims WHERE is_claimed = ? FOR UPDATE NOWAIT", false).Scan(claim)
 		if tx.Error != nil {
