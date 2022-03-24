@@ -51,6 +51,11 @@ jobs:
 #        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
 #        with:
 #          images: sudoblock/icon-go-etl
+      - id: last
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: ${{ github.repository }}
+
       - name: Tag name
         id: source
         run: |
