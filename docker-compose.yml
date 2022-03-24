@@ -1,6 +1,6 @@
 version: "3.7"
 
-x-env: &env
+x-extractor-env: &extractor-env
   # General
   NAME: "blocks"
   NETWORK_NAME: "mainnet"
@@ -33,11 +33,11 @@ x-env: &env
   DB_TIMEZONE: "UTC"
 
 services:
-  etl:
+  extractor:
     build:
       context: .
       target: prod
     ports:
       - "8000:8000"
     environment:
-      <<: *env
+      <<: *extractor-env

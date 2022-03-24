@@ -9,7 +9,7 @@ import (
 type configType struct {
 
 	// General
-	Name        string `envconfig:"NAME" required:"false" default:"icon-go-etl"`
+	Name        string `envconfig:"NAME" required:"false" default:"icon-extractor"`
 	NetworkName string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
 
 	// Extractors

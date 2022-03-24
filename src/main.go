@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/sudoblockio/icon-go-etl/api"
-	"github.com/sudoblockio/icon-go-etl/config"
-	"github.com/sudoblockio/icon-go-etl/extractor"
-	"github.com/sudoblockio/icon-go-etl/global"
-	"github.com/sudoblockio/icon-go-etl/kafka"
-	"github.com/sudoblockio/icon-go-etl/logging"
-	"github.com/sudoblockio/icon-go-etl/transformer"
+	"github.com/sudoblockio/icon-extractor/api"
+	"github.com/sudoblockio/icon-extractor/config"
+	"github.com/sudoblockio/icon-extractor/extractor"
+	"github.com/sudoblockio/icon-extractor/global"
+	"github.com/sudoblockio/icon-extractor/kafka"
+	"github.com/sudoblockio/icon-extractor/logging"
+	"github.com/sudoblockio/icon-extractor/transformer"
 )
 
 func main() {

@@ -37,12 +37,6 @@ build-swagger:  ## Build the swagger docs
 build:  ## Build everything
 	docker-compose build
 
-build-api:  ## Build the api
-	docker-compose build blocks-api
-
-build-worker:  ## Build the worker
-	docker-compose build blocks-worker
-
 ps:  ## List all containers and running status
 	docker-compose -f docker-compose.db.yml -f docker-compose.yml ps
 

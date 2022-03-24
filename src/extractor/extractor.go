@@ -10,11 +10,11 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
-	"github.com/sudoblockio/icon-go-etl/config"
-	"github.com/sudoblockio/icon-go-etl/crud"
-	"github.com/sudoblockio/icon-go-etl/models"
-	"github.com/sudoblockio/icon-go-etl/service"
-	"github.com/sudoblockio/icon-go-etl/transformer"
+	"github.com/sudoblockio/icon-extractor/config"
+	"github.com/sudoblockio/icon-extractor/crud"
+	"github.com/sudoblockio/icon-extractor/models"
+	"github.com/sudoblockio/icon-extractor/service"
+	"github.com/sudoblockio/icon-extractor/transformer"
 )
 
 func Start() {

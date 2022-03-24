@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sudoblockio/icon-go-etl/config"
+	"github.com/sudoblockio/icon-extractor/config"
 )
 
 func IconNodeServiceGetBlockByHeight(heights []int64) ([]IconNodeResponseGetBlockByHeight, error) {

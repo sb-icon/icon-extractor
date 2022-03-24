@@ -6,9 +6,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"go.uber.org/zap"
 
-	_ "github.com/sudoblockio/icon-go-etl/api/docs" // import for swagger docs
-	"github.com/sudoblockio/icon-go-etl/api/routes"
-	"github.com/sudoblockio/icon-go-etl/config"
+	_ "github.com/sudoblockio/icon-extractor/api/docs" // import for swagger docs
+	"github.com/sudoblockio/icon-extractor/api/routes"
+	"github.com/sudoblockio/icon-extractor/config"
 )
 
 // @title Go api template docs

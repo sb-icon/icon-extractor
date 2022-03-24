@@ -5,10 +5,10 @@ import (
 	"strconv"
 
 	"github.com/Shopify/sarama"
-	"github.com/sudoblockio/icon-go-etl/config"
-	"github.com/sudoblockio/icon-go-etl/kafka"
-	"github.com/sudoblockio/icon-go-etl/models"
-	"github.com/sudoblockio/icon-go-etl/service"
+	"github.com/sudoblockio/icon-extractor/config"
+	"github.com/sudoblockio/icon-extractor/kafka"
+	"github.com/sudoblockio/icon-extractor/models"
+	"github.com/sudoblockio/icon-extractor/service"
 	"google.golang.org/protobuf/proto"
 )
 

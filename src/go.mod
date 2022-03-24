@@ -1,4 +1,4 @@
-module github.com/sudoblockio/icon-go-etl
+module github.com/sudoblockio/icon-extractor
 
 go 1.16
 
