@@ -50,7 +50,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: icon-go-etl
+          ECR_REPOSITORY: icon-extractor
           IMAGE_TAG: prod-${{ steps.source.outputs.TAG }}
         run: |
           docker build --target prod -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
