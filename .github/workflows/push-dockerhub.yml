@@ -72,8 +72,7 @@ jobs:
           file: ./Dockerfile
           target: prod
           push: true
-          repository: sudoblock/icon-extractor
-          tags: latest, ${{ steps.source.outputs.TAG }}
+          tags: sudoblock/icon-extractor:latest, sudoblock/icon-extractor:${{ steps.source.outputs.TAG }}
 
       - name: Checkout charts repo
         uses: actions/checkout@v2
