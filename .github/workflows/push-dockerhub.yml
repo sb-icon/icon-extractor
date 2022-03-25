@@ -87,7 +87,7 @@ jobs:
         with:
           workDir: charts
           repository: sudoblockio/icon-charts
-          valueFile: 'deployments/dev-lax/mainnet/extractor/values.yaml'
+          valueFile: 'deployments/dev-lax/mainnet-v2/extractor/values.yaml'
           propertyPath: 'image.tag'
           value: ${{ steps.source.outputs.TAG }}
           branch: main
