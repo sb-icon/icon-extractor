@@ -16,8 +16,12 @@ type configType struct {
 	StartClaimExtractors    bool `envconfig:"START_CLAIM_EXTRACTORS" required:"false" default:"true"`
 	NumClaimExtractors      int  `envconfig:"NUM_EXTRACTORS" required:"false" default:"4"`
 	MaxClaimSize            int  `envconfig:"MAX_CLAIM_SIZE" required:"false" default:"1000"`
-	StartHeadExtractor      bool `envconfig:"START_HEAD_EXTRACTOR" required:"false" default:"true"`
+	StartHeadExtractor      bool `envconfig:"START_HEAD_EXTRACTOR" required:"false" default:"false"`
 	HeadExtractorStartBlock int  `envconfig:"HEAD_EXTRACTOR_START_BLOCK" required:"false" default:"1"`
+
+	InsertExtractorJob                 bool   `envconfig:"INSERT_EXTRACTOR_JOB" required:"false" default:"true"`
+	InsertExtractorJobStartBlockNumber int `envconfig:"INSERT_EXTRACTOR_JOB_START_BLOCK_NUMBER" required:"false" default:"1"`
+	InsertExtractorJobEndBlockNumber   int `envconfig:"INSERT_EXTRACTOR_JOB_END_BLOCK_NUMBER" required:"false" default:"400000"`
 
 	// API
 	APIPort           string `envconfig:"API_PORT" required:"false" default:"8000"`

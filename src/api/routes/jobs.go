@@ -20,7 +20,6 @@ type JobsBody struct {
 	EndBlockNumber   int `json:"end_block_number"`
 }
 
-// BlocksAddHandlers - add blocks endpoints to fiber router
 func AddHandlers(app *fiber.App) {
 
 	prefix := config.Config.APIPrefix

@@ -1,6 +1,11 @@
 package api
 
 import (
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -41,4 +46,46 @@ func Start() {
 	routes.AddHandlers(app)
 
 	go app.Listen(":" + config.Config.APIPort)
+
+	// Insert job if env configured
+	if config.Config.InsertExtractorJob == true {
+
+		// Loop until success
+		for {
+
+			body := strings.NewReader(fmt.Sprintf(`{
+  					"start_block_number": %d,
+  					"end_block_number": %d
+				}`,
+				config.Config.InsertExtractorJobStartBlockNumber,
+				config.Config.InsertExtractorJobEndBlockNumber,
+			))
+			req, err := http.NewRequest("POST", "http://localhost:" + config.Config.APIPort + config.Config.APIPrefix + "/create-job", body)
+			if err != nil {
+				zap.S().Warn(err)
+				time.Sleep(1 * time.Second)
+				continue
+			}
+			req.Header.Set("Accept", "application/json")
+			req.Header.Set("Content-Type", "*/*")
+
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				zap.S().Warn(err)
+				time.Sleep(1 * time.Second)
+				continue
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode == 200 {
+				// Success
+				break
+			}
+
+			// Fail
+			zap.S().Warn("Could not insert extractor job, StatusCode=", resp.StatusCode)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+	}
 }
