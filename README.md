@@ -16,7 +16,7 @@ version: "3.7"
 
 x-extractor-env: &extractor-env
   IconNodeServiceURL: "https://ctz.solidwallet.io/api/v3"
-	IconNodeServiceMaxBatchSize: "10"                       # Max number of datapoints the icon node can handle in one request   
+  IconNodeServiceMaxBatchSize: "10"                       # Max number of datapoints the icon node can handle in one request   
   
   # Extractors
   START_HEAD_EXTRACTOR: "true"                            # Head extractor (Live blocks)
