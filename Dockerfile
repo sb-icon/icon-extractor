@@ -17,9 +17,14 @@ WORKDIR /build
 RUN go build -o main ./
 
 FROM ubuntu as prod
+RUN apt update && apt install curl -y
 
 # For SSL certs
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-COPY --from=builder /build/main /
-CMD ["/main"]
+RUN useradd -ms /bin/bash icon
+USER icon
+WORKDIR /home/icon
+
+COPY --from=builder /build/main ./
+CMD ["./main"]
