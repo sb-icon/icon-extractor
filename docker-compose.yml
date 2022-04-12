@@ -5,6 +5,11 @@ x-extractor-env: &extractor-env
   NAME: "icon-extractor"
   NETWORK_NAME: "mainnet"
 
+  API_PORT: "${EXTRACTOR_API_PORT:-8000}"
+
+  ICON_NODE_SERVICE_URL: "${ICON_NODE_SERVICE_URL:-https://api.icon.geometry.io/api/v3}"
+  ICON_NODE_SERVICE_MAX_BATCH_SIZE: "${ICON_NODE_SERVICE_MAX_BATCH_SIZE:-100}"
+
   # Extractors
   START_CLAIM_EXTRACTORS: "false"
   NUM_CLAIM_EXTRACTORS: "4"
@@ -27,7 +32,7 @@ x-extractor-env: &extractor-env
   DB_HOST: "postgres"
   DB_PORT: "5432"
   DB_USER: "postgres"
-  DB_PASSWORD: "changeme"
+  DB_PASSWORD: "${DB_PASSWORD:-changeme}"
   DB_DBNAME: "postgres"
   DB_SSL_MODE: "disable"
   DB_TIMEZONE: "UTC"
@@ -35,9 +40,9 @@ x-extractor-env: &extractor-env
 services:
   extractor:
     build:
-      context: .
-      target: prod
-    ports:
-      - "8000:8000"
+      context: ${EXTRACTOR_CONTEXT:-.}
+      target: ${EXTRACTOR_TARGET:-prod}
+#    ports:
+#      - "8000:8000"
     environment:
       <<: *extractor-env
