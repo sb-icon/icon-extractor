@@ -15,11 +15,14 @@ make up
 version: "3.7"
 
 x-extractor-env: &extractor-env
+  IconNodeServiceURL: "https://ctz.solidwallet.io/api/v3"
+	IconNodeServiceMaxBatchSize: "10"                       # Max number of datapoints the icon node can handle in one request   
+  
   # Extractors
-  START_HEAD_EXTRACTOR: "true"                  # Head extractor (Live blocks)
-  HEAD_EXTRACTOR_START_BLOCK: "40000000"        # Starting point for head extractor, will continue to wait for future blocks
-  START_CLAIM_EXTRACTORS: "true"                # Claim extractor (Historical blocks)
-  NUM_CLAIM_EXTRACTORS: "4"                     # Number of claim extractors to start (go routines)
+  START_HEAD_EXTRACTOR: "true"                            # Head extractor (Live blocks)
+  HEAD_EXTRACTOR_START_BLOCK: "40000000"                  # Starting point for head extractor, will continue to wait for future blocks
+  START_CLAIM_EXTRACTORS: "true"                          # Claim extractor (Historical blocks)
+  NUM_CLAIM_EXTRACTORS: "4"                               # Number of claim extractors to start (go routines)
 
   # Kakfa
   KAFKA_BROKER_URL: "kafka:9092"
@@ -69,5 +72,6 @@ curl -X 'POST' \
   "start_block_number": 1
 }'
 ```
+If multiple instances of icon-extractor are run, attaching the same database will enable them to work together. Simply sending the curl command to one of the icon-extractor instances will start all extractors in all instances and they will split the work up evenly.
 
 ### Internal diagram![Blank diagram](https://user-images.githubusercontent.com/77865393/162858201-1eeda5b5-8134-4c87-93c3-d2e1dc6f88a3.png)
