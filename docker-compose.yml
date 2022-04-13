@@ -42,7 +42,6 @@ services:
     build:
       context: ${EXTRACTOR_CONTEXT:-.}
       target: ${EXTRACTOR_TARGET:-prod}
-    network_mode: host
     ports:
       - "${EXTRACTOR_API_PORT:-8000}:${EXTRACTOR_API_PORT:-8000}"
     environment:
