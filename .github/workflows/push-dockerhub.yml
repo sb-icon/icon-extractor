@@ -46,28 +46,64 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: sudoblock/icon-extractor
+#      - name: Extract metadata (tags, labels) for Docker
+#        id: meta
+#        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+#        with:
+#          images: sudoblock/icon-go-etl
 
-      - name: Build and push Docker image (latest)
+      - id: last
+        uses: reloc8/action-latest-release-version@1.0.0
+
+#      - id: last
+#        uses: pozetroninc/github-action-get-latest-release@master
+#        with:
+#          repository: ${{ github.repository }}
+
+      - name: Tag name
+        id: source
+        run: |
+          echo ::set-output name=TAG::${{ steps.last.outputs.latest-release }}-${{ github.run_number }}
+
+      - name: Build and push (API)
         uses: docker/build-push-action@v2
         with:
           context: .
           file: ./Dockerfile
           target: prod
           push: true
-          tags: sudoblock/icon-extractor:latest
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: sudoblock/icon-extractor:latest, sudoblock/icon-extractor:${{ steps.source.outputs.TAG }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+      - name: Checkout charts repo
+        uses: actions/checkout@v2
         with:
-          context: .
-          file: ./Dockerfile
-          target: prod
-          push: true
-          tags: sudoblock/icon-extractor:${{ github.run_number }}
-          labels: ${{ steps.meta.outputs.labels }}
+          repository: sudoblockio/icon-charts
+          ref: main
+          path: charts
+          token: ${{ secrets.ICON_CHARTS_PAT }}
+
+      - name: Update dev-lax mainnet deployment values file (API)
+        uses: fjogeleit/yaml-update-action@master
+        with:
+          workDir: charts
+          repository: sudoblockio/icon-charts
+          valueFile: 'deployments/dev-lax/mainnet-v2/extractor/values.yaml'
+          propertyPath: 'image.tag'
+          value: ${{ steps.source.outputs.TAG }}
+          branch: main
+          createPR: 'false'
+          updateFile: true
+          commitChange: false
+
+      - name: Configure credentials
+        uses: oleksiyrudenko/gha-git-credentials@v2-latest
+        with:
+          token: '${{ secrets.ICON_CHARTS_PAT }}'
+          global: true
+
+      - name: Commit all updates
+        run: |
+          git add -A
+          git commit -m "extractor dev deployment image versions to ${{ steps.source.outputs.TAG }}"
+          git push origin
+        working-directory: charts

@@ -5,9 +5,14 @@ x-extractor-env: &extractor-env
   NAME: "icon-extractor"
   NETWORK_NAME: "mainnet"
 
+  API_PORT: "${EXTRACTOR_API_PORT:-8000}"
+
+  ICON_NODE_SERVICE_URL: "${ICON_NODE_SERVICE_URL:-https://api.icon.geometry.io/api/v3}"
+  ICON_NODE_SERVICE_MAX_BATCH_SIZE: "${ICON_NODE_SERVICE_MAX_BATCH_SIZE:-100}"
+
   # Extractors
   START_CLAIM_EXTRACTORS: "true"
-  NUM_CLAIM_EXTRACTORS: "4"
+  NUM_CLAIM_EXTRACTORS: "16"
   MAX_CLAIM_SIZE: "1000"
   START_HEAD_EXTRACTOR: "false"
   HEAD_EXTRACTOR_START_BLOCK: "40000000"
@@ -16,21 +21,18 @@ x-extractor-env: &extractor-env
   INSERT_EXTRACTOR_JOB_END_BLOCK_NUMBER: "10000000"
 
   # Logging
-  LOG_LEVEL: "DEBUG"
-  LOG_TO_FILE: "false"
-  LOG_FILE_NAME: ""
+  LOG_LEVEL: "INFO"
   LOG_FORMAT: "console"
-  LOG_IS_DEVELOPMENT: "true"
 
   # Kakfa
-  KAFKA_BROKER_URL: "kafka:9092"
+  KAFKA_BROKER_URL: "${EXTRACTOR_KAFKA_BROKER_URL:-kafka:9092}"
 
   # DB
   DB_DRIVER: "postgres"
-  DB_HOST: "postgres"
-  DB_PORT: "5432"
+  DB_HOST: "${EXTRACTOR_DB_HOST:-postgres}"
+  DB_PORT: "${EXTRACTOR_DB_PORT:-5432}"
   DB_USER: "postgres"
-  DB_PASSWORD: "changeme"
+  DB_PASSWORD: "${POSTGRES_PASSWORD:-changeme}"
   DB_DBNAME: "postgres"
   DB_SSL_MODE: "disable"
   DB_TIMEZONE: "UTC"
@@ -38,9 +40,10 @@ x-extractor-env: &extractor-env
 services:
   extractor:
     build:
-      context: .
-      target: prod
+      context: ${EXTRACTOR_CONTEXT:-.}
+      target: ${EXTRACTOR_TARGET:-prod}
+    network_mode: host
     ports:
-      - "8000:8000"
+      - "${EXTRACTOR_API_PORT:-8000}:${EXTRACTOR_API_PORT:-8000}"
     environment:
       <<: *extractor-env
