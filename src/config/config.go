@@ -19,9 +19,12 @@ type configType struct {
 	StartHeadExtractor      bool `envconfig:"START_HEAD_EXTRACTOR" required:"false" default:"false"`
 	HeadExtractorStartBlock int  `envconfig:"HEAD_EXTRACTOR_START_BLOCK" required:"false" default:"1"`
 
+	// Insert a job
+	// NOTE will duplicate on restart
 	InsertExtractorJob                 bool   `envconfig:"INSERT_EXTRACTOR_JOB" required:"false" default:"true"`
-	InsertExtractorJobStartBlockNumber int `envconfig:"INSERT_EXTRACTOR_JOB_START_BLOCK_NUMBER" required:"false" default:"1"`
-	InsertExtractorJobEndBlockNumber   int `envconfig:"INSERT_EXTRACTOR_JOB_END_BLOCK_NUMBER" required:"false" default:"400000"`
+	InsertExtractorJobStartBlockNumber int    `envconfig:"INSERT_EXTRACTOR_JOB_START_BLOCK_NUMBER" required:"false" default:"1"`
+	InsertExtractorJobEndBlockNumber   int    `envconfig:"INSERT_EXTRACTOR_JOB_END_BLOCK_NUMBER" required:"false" default:"400000"`
+	InsertExtractorJobHash             string `envconfig:"INSERT_EXTRACTOR_JOB_HASH" required:"false" default:"ENV_INSERTED_JOB"`
 
 	// API
 	APIPort           string `envconfig:"API_PORT" required:"false" default:"8000"`

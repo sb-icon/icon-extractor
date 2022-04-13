@@ -55,6 +55,20 @@ func (m *JobCrud) Migrate() error {
 	return err
 }
 
+// SelectOne - select from blocks table
+func (m *JobCrud) SelectOne(
+	hash string,
+) (*models.Job, error) {
+	db := m.db
+
+	db = db.Where("hash = ?", hash)
+
+	job := &models.Job{}
+	db = db.First(job)
+
+	return job, db.Error
+}
+
 func (m *JobCrud) UpsertOne(
 	job *models.Job,
 ) error {

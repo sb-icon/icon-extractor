@@ -1,19 +1,21 @@
 package api
 
 import (
-	"fmt"
-	"net/http"
-	"strings"
+	"errors"
+	"math"
 	"time"
 
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 
 	_ "github.com/sudoblockio/icon-extractor/api/docs" // import for swagger docs
 	"github.com/sudoblockio/icon-extractor/api/routes"
 	"github.com/sudoblockio/icon-extractor/config"
+	"github.com/sudoblockio/icon-extractor/crud"
+	"github.com/sudoblockio/icon-extractor/models"
 )
 
 // @title Go api template docs
@@ -50,42 +52,45 @@ func Start() {
 	// Insert job if env configured
 	if config.Config.InsertExtractorJob == true {
 
-		// Loop until success
-		for {
+		// Check if job already exist
+		_, err := crud.GetJobCrud().SelectOne(config.Config.InsertExtractorJobHash)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			////////////////
+			// Create job //
+			////////////////
+			job := &models.Job{}
+			job.StartBlockNumber = int64(config.Config.InsertExtractorJobStartBlockNumber)
+			job.EndBlockNumber = int64(config.Config.InsertExtractorJobEndBlockNumber)
+			job.CreatedTimestamp = time.Now().Unix()
+			job.NumClaims = int64(math.Ceil(float64(config.Config.InsertExtractorJobEndBlockNumber-config.Config.InsertExtractorJobStartBlockNumber) / float64(config.Config.MaxClaimSize)))
 
-			body := strings.NewReader(fmt.Sprintf(`{
-  					"start_block_number": %d,
-  					"end_block_number": %d
-				}`,
-				config.Config.InsertExtractorJobStartBlockNumber,
-				config.Config.InsertExtractorJobEndBlockNumber,
-			))
-			req, err := http.NewRequest("POST", "http://localhost:" + config.Config.APIPort + config.Config.APIPrefix + "/create-job", body)
-			if err != nil {
-				zap.S().Warn(err)
-				time.Sleep(1 * time.Second)
-				continue
+			// Hash jobs
+			// Set Hash to default
+			// Removes duplicates
+			job.Hash = config.Config.InsertExtractorJobHash
+
+			// Insert to DB
+			crud.GetJobCrud().LoaderChannel <- job
+
+			// Create claims
+			for i := 0; i < int(job.NumClaims); i++ {
+				claim := &models.Claim{}
+
+				claim.JobHash = job.Hash
+				claim.ClaimIndex = int64(i)
+				claim.StartBlockNumber = job.StartBlockNumber + int64(config.Config.MaxClaimSize*i)
+				claim.EndBlockNumber = claim.StartBlockNumber + int64(config.Config.MaxClaimSize)
+				claim.IsClaimed = false
+				claim.IsCompleted = false
+
+				// Last claim should not exceed job.EndBlockNumber
+				if i == int(job.NumClaims)-1 {
+					claim.EndBlockNumber = job.EndBlockNumber
+				}
+
+				// Insert to DB
+				crud.GetClaimCrud().LoaderChannel <- claim
 			}
-			req.Header.Set("Accept", "application/json")
-			req.Header.Set("Content-Type", "*/*")
-
-			resp, err := http.DefaultClient.Do(req)
-			if err != nil {
-				zap.S().Warn(err)
-				time.Sleep(1 * time.Second)
-				continue
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode == 200 {
-				// Success
-				break
-			}
-
-			// Fail
-			zap.S().Warn("Could not insert extractor job, StatusCode=", resp.StatusCode)
-			time.Sleep(1 * time.Second)
-			continue
 		}
 	}
 }
