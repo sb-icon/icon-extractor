@@ -13,12 +13,12 @@ type configType struct {
 	NetworkName string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
 
 	// Claim Extractors
-	StartClaimExtractors bool `envconfig:"START_CLAIM_EXTRACTORS" required:"false" default:"true"`
+	StartClaimExtractors bool `envconfig:"START_CLAIM_EXTRACTORS" required:"false" default:"false"`
 	NumClaimExtractors   int  `envconfig:"NUM_EXTRACTORS" required:"false" default:"4"`
 	MaxClaimSize         int  `envconfig:"MAX_CLAIM_SIZE" required:"false" default:"1000"`
 
 	// Head Extractor
-	StartHeadExtractor      bool `envconfig:"START_HEAD_EXTRACTOR" required:"false" default:"false"`
+	StartHeadExtractor      bool `envconfig:"START_HEAD_EXTRACTOR" required:"false" default:"true"`
 	HeadExtractorStartBlock int  `envconfig:"HEAD_EXTRACTOR_START_BLOCK" required:"false" default:"1"`
 
 	// Insert a job
@@ -44,8 +44,8 @@ type configType struct {
 	LogIsDevelopment bool   `envconfig:"LOG_IS_DEVELOPMENT" required:"false" default:"true"`
 
 	// Icon node service
-	IconNodeServiceURL          string `envconfig:"ICON_NODE_SERVICE_URL" required:"false" default:"https://api.icon.geometry.io/api/v3"`
-	IconNodeServiceMaxBatchSize int    `envconfig:"ICON_NODE_SERVICE_MAX_BATCH_SIZE" required:"false" default:"100"`
+	IconNodeServiceURL          string `envconfig:"ICON_NODE_SERVICE_URL" required:"false" default:"https://ctz.solidwallet.io/api/v3"`
+	IconNodeServiceMaxBatchSize int    `envconfig:"ICON_NODE_SERVICE_MAX_BATCH_SIZE" required:"false" default:"10"`
 
 	// Kafka
 	KafkaBrokerURL        string `envconfig:"KAFKA_BROKER_URL" required:"false" default:"localhost:29092"`

@@ -3,6 +3,7 @@ package transformer
 import (
 	"encoding/json"
 	"strconv"
+	"time"
 
 	"github.com/Shopify/sarama"
 	"github.com/sudoblockio/icon-extractor/config"
@@ -212,6 +213,7 @@ func startTransformer() {
 			Partition: -1,
 			Key:       sarama.StringEncoder(messageKey),
 			Value:     sarama.StringEncoder(string(messageValue)),
+			Timestamp: time.Unix(int(block.Timestamp / 1000000)),
 		}
 
 		kafka.KafkaTopicProducers[config.Config.KafkaBlocksTopic].TopicChan <- kafkaMessage
