@@ -12,10 +12,12 @@ type configType struct {
 	Name        string `envconfig:"NAME" required:"false" default:"icon-extractor"`
 	NetworkName string `envconfig:"NETWORK_NAME" required:"false" default:"mainnnet"`
 
-	// Extractors
-	StartClaimExtractors    bool `envconfig:"START_CLAIM_EXTRACTORS" required:"false" default:"true"`
-	NumClaimExtractors      int  `envconfig:"NUM_EXTRACTORS" required:"false" default:"4"`
-	MaxClaimSize            int  `envconfig:"MAX_CLAIM_SIZE" required:"false" default:"1000"`
+	// Claim Extractors
+	StartClaimExtractors bool `envconfig:"START_CLAIM_EXTRACTORS" required:"false" default:"true"`
+	NumClaimExtractors   int  `envconfig:"NUM_EXTRACTORS" required:"false" default:"4"`
+	MaxClaimSize         int  `envconfig:"MAX_CLAIM_SIZE" required:"false" default:"1000"`
+
+	// Head Extractor
 	StartHeadExtractor      bool `envconfig:"START_HEAD_EXTRACTOR" required:"false" default:"false"`
 	HeadExtractorStartBlock int  `envconfig:"HEAD_EXTRACTOR_START_BLOCK" required:"false" default:"1"`
 
