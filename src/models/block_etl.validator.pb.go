@@ -5,11 +5,11 @@ package models
 
 import (
 	fmt "fmt"
+	math "math"
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
-	math "math"
 	regexp "regexp"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -19,7 +19,7 @@ var _ = math.Inf
 
 var _regex_BlockETL_Hash = regexp.MustCompile(`^[a-f0-9]{64}$`)
 var _regex_BlockETL_ParentHash = regexp.MustCompile(`^[a-f0-9]{64}$`)
-var _regex_BlockETL_MerkleRootHash = regexp.MustCompile(`^[a-f0-9]{64}$`)
+var _regex_BlockETL_MerkleRootHash = regexp.MustCompile(`^[a-f0-9]{0,64}$`)
 var _regex_BlockETL_PeerId = regexp.MustCompile(`^hx[a-f0-9]{40}$`)
 
 func (this *BlockETL) Validate() error {
@@ -33,7 +33,7 @@ func (this *BlockETL) Validate() error {
 		return github_com_mwitkow_go_proto_validators.FieldError("ParentHash", fmt.Errorf(`value '%v' must be a string conforming to regex "^[a-f0-9]{64}$"`, this.ParentHash))
 	}
 	if !_regex_BlockETL_MerkleRootHash.MatchString(this.MerkleRootHash) {
-		return github_com_mwitkow_go_proto_validators.FieldError("MerkleRootHash", fmt.Errorf(`value '%v' must be a string conforming to regex "^[a-f0-9]{64}$"`, this.MerkleRootHash))
+		return github_com_mwitkow_go_proto_validators.FieldError("MerkleRootHash", fmt.Errorf(`value '%v' must be a string conforming to regex "^[a-f0-9]{0,64}$"`, this.MerkleRootHash))
 	}
 	if !_regex_BlockETL_PeerId.MatchString(this.PeerId) {
 		return github_com_mwitkow_go_proto_validators.FieldError("PeerId", fmt.Errorf(`value '%v' must be a string conforming to regex "^hx[a-f0-9]{40}$"`, this.PeerId))

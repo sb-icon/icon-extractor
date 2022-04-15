@@ -9,7 +9,7 @@ message BlockETL {
   int64 number = 1 [(validator.field) = {int_gt: 0}];
   string hash = 2 [(validator.field) = {regex:"^[a-f0-9]{64}$"}];
   string parent_hash = 3 [(validator.field) = {regex:"^[a-f0-9]{64}$"}];
-  string merkle_root_hash = 4 [(validator.field) = {regex:"^[a-f0-9]{64}$"}];
+  string merkle_root_hash = 4 [(validator.field) = {regex:"^[a-f0-9]{0,64}$"}];
   string peer_id = 5 [(validator.field) = {regex:"^hx[a-f0-9]{40}$"}];
   string signature = 6;
   int64 timestamp = 7 [(validator.field) = {int_gt: 0}];
