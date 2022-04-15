@@ -63,7 +63,7 @@ func (k *KafkaTopicProducer) produceTopic() {
 		// Create topic
 		err = admin.CreateTopic(k.TopicName, &sarama.TopicDetail{
 			NumPartitions:     int32(k.TopicPartitions),
-			ReplicationFactor: 1,
+			ReplicationFactor: int16(config.Config.KafkaReplicationFactor),
 		}, false)
 		if err != nil {
 			zap.S().Warn("Error while creating topic: ", err.Error())
