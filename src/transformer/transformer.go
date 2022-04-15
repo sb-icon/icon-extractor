@@ -213,7 +213,7 @@ func startTransformer() {
 			Partition: -1,
 			Key:       sarama.StringEncoder(messageKey),
 			Value:     sarama.StringEncoder(string(messageValue)),
-			Timestamp: time.Unix(int(block.Timestamp / 1000000)),
+			Timestamp: time.Unix(int64(block.Timestamp/1000000), 0),
 		}
 
 		kafka.KafkaTopicProducers[config.Config.KafkaBlocksTopic].TopicChan <- kafkaMessage
