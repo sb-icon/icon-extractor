@@ -36,7 +36,7 @@ func StartProducers() {
 	KafkaTopicProducers[deadMessageTopic] = &KafkaTopicProducer{
 		kafkaBroker,
 		deadMessageTopic,
-		1,
+		blocksPartitions,
 		make(chan *sarama.ProducerMessage),
 	}
 
