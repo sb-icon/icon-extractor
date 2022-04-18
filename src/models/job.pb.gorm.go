@@ -403,7 +403,7 @@ func DefaultListClaim(ctx context.Context, db *gorm1.DB) ([]*Claim, error) {
 		}
 	}
 	db = db.Where(&ormObj)
-	db = db.Order("job_hash")
+	db = db.Order("claim_index")
 	ormResponse := []ClaimORM{}
 	if err := db.Find(&ormResponse).Error; err != nil {
 		return nil, err

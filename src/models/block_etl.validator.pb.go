@@ -38,8 +38,8 @@ func (this *BlockETL) Validate() error {
 	if !_regex_BlockETL_PeerId.MatchString(this.PeerId) {
 		return github_com_mwitkow_go_proto_validators.FieldError("PeerId", fmt.Errorf(`value '%v' must be a string conforming to regex "^hx[a-f0-9]{40}$"`, this.PeerId))
 	}
-	if !(this.Timestamp > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", fmt.Errorf(`value '%v' must be greater than '0'`, this.Timestamp))
+	if !(this.Timestamp > -1) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", fmt.Errorf(`value '%v' must be greater than '-1'`, this.Timestamp))
 	}
 	for _, item := range this.Transactions {
 		if item != nil {

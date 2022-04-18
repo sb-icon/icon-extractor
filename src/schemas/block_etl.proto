@@ -12,7 +12,7 @@ message BlockETL {
   string merkle_root_hash = 4 [(validator.field) = {regex:"^[a-f0-9]{0,64}$"}];
   string peer_id = 5 [(validator.field) = {regex:"^hx[a-f0-9]{40}$"}];
   string signature = 6;
-  int64 timestamp = 7 [(validator.field) = {int_gt: 0}];
+  int64 timestamp = 7 [(validator.field) = {int_gt: -1}];
   string version = 8;
 
   repeated TransactionETL transactions = 9;
