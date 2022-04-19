@@ -22,6 +22,11 @@ func Start() {
 
 	// Claim extractors
 	if config.Config.StartClaimExtractors == true {
+		zap.S().Info(
+			"Routine=", "Extractor",
+			", Step=", "Start claim extractors",
+			" - Starting claim extractors...",
+		)
 		for i := 0; i < config.Config.NumClaimExtractors; i++ {
 			e := Extractor{
 				transformer.RawBlockChannel,
@@ -33,6 +38,11 @@ func Start() {
 
 	// Head extractor
 	if config.Config.StartHeadExtractor == true {
+		zap.S().Info(
+			"Routine=", "Extractor",
+			", Step=", "Start head extractor",
+			" - Starting head extractor...",
+		)
 		e := Extractor{
 			transformer.RawBlockChannel,
 		}
@@ -89,9 +99,9 @@ func (e Extractor) start(isHead bool) {
 			claim, err = crud.GetClaimCrud().SelectOneClaim()
 			if err != nil {
 				zap.S().Warn(
-					"Routine=", "Extractor, ",
-					"Step=", "Get claim, ",
-					"Error=", err.Error(),
+					"Routine=", "Extractor",
+					", Step=", "Get claim",
+					", Error=", err.Error(),
 					" - Sleeping 1 second...",
 				)
 				time.Sleep(1 * time.Second)
@@ -99,8 +109,8 @@ func (e Extractor) start(isHead bool) {
 			}
 			if claim.StartBlockNumber > claim.EndBlockNumber {
 				zap.S().Warn(
-					"Routine=", "Extractor, ",
-					"Step=", "Get claim, ",
+					"Routine=", "Extractor",
+					", Step=", "Get claim",
 					" - Start block number greater than end block number...skipping claim",
 				)
 				continue
@@ -111,6 +121,16 @@ func (e Extractor) start(isHead bool) {
 				blockNumberQueue[iB] = claim.StartBlockNumber + int64(iB)
 			}
 		}
+
+		zap.S().Info(
+			"Routine=", "Extractor",
+			", Step=", "Starting claim",
+			", Job Hash=", claim.JobHash,
+			", Claim Index=", claim.ClaimIndex,
+			", Start=", claim.StartBlockNumber,
+			", End=", claim.EndBlockNumber,
+			" - Starting claim",
+		)
 
 		// Loop through block numbers in queue
 		for {
@@ -124,10 +144,10 @@ func (e Extractor) start(isHead bool) {
 			rawBlocksAll, err := service.IconNodeServiceGetBlockByHeight(blockNumbers)
 			if err != nil {
 				zap.S().Warn(
-					"Routine=", "Extractor, ",
-					"Step=", "Get Blocks, ",
-					"BlockNumbers=", blockNumbers, ", ",
-					"Error=", err.Error(),
+					"Routine=", "Extractor",
+					", Step=", "Get Blocks",
+					", BlockNumbers=", blockNumbers,
+					", Error=", err.Error(),
 				)
 				continue
 			}
@@ -148,11 +168,11 @@ func (e Extractor) start(isHead bool) {
 						}
 					} else {
 						zap.S().Warn(
-							"Routine=", "Extractor, ",
-							"Step=", "Check block, ",
-							"BlockNumber=", blockNumbers[iB], ", ",
-							"ErrorCode=", block.Error.Code, ", ",
-							"ErrorMessage=", block.Error.Message, ", ",
+							"Routine=", "Extractor",
+							", Step=", "Check block",
+							", BlockNumber=", blockNumbers[iB],
+							", ErrorCode=", block.Error.Code,
+							", ErrorMessage=", block.Error.Message,
 						)
 					}
 				} else {
@@ -162,9 +182,9 @@ func (e Extractor) start(isHead bool) {
 			}
 			if waitingBlockNumber != -1 {
 				zap.S().Info(
-					"Routine=", "Extractor, ",
-					"Step=", "Check block, ",
-					"BlockNumber=", waitingBlockNumber, ", ",
+					"Routine=", "Extractor",
+					", Step=", "Check block",
+					", BlockNumber=", waitingBlockNumber,
 					" - Waiting for block to be created...",
 				)
 				time.Sleep(1 * time.Second)
@@ -200,10 +220,10 @@ func (e Extractor) start(isHead bool) {
 				rawTransactionsAll, err := service.IconNodeServiceGetTransactionByHash(transactionHashes)
 				if err != nil {
 					zap.S().Warn(
-						"Routine=", "Extractor, ",
-						"Step=", "Get Transactions, ",
-						"TransactionHashes=", transactionHashes, ", ",
-						"Error=", err.Error(),
+						"Routine=", "Extractor",
+						", Step=", "Get Transactions",
+						", TransactionHashes=", transactionHashes,
+						", Error=", err.Error(),
 					)
 					continue
 				}
@@ -223,11 +243,11 @@ func (e Extractor) start(isHead bool) {
 						} else {
 
 							zap.S().Warn(
-								"Routine=", "Extractor, ",
-								"Step=", "Check transaction, ",
-								"TransactionHash=", transactionHashes[iT], ", ",
-								"ErrorCode=", transaction.Error.Code, ", ",
-								"ErrorMessage=", transaction.Error.Message, ", ",
+								"Routine=", "Extractor",
+								", Step=", "Check transaction",
+								", TransactionHash=", transactionHashes[iT],
+								", ErrorCode=", transaction.Error.Code,
+								", ErrorMessage=", transaction.Error.Message,
 							)
 						}
 					} else {
@@ -237,9 +257,9 @@ func (e Extractor) start(isHead bool) {
 				}
 				if waitingTransactionHash != "" {
 					zap.S().Info(
-						"Routine=", "Extractor, ",
-						"Step=", "Check transaction, ",
-						"BlockNumber=", waitingTransactionHash, ", ",
+						"Routine=", "Extractor",
+						", Step=", "Check transaction",
+						", BlockNumber=", waitingTransactionHash,
 						" - Waiting for transaction to be created...",
 					)
 					time.Sleep(1 * time.Second)
@@ -254,11 +274,11 @@ func (e Extractor) start(isHead bool) {
 					transactionBlockNumber, err := strconv.ParseInt(strings.Replace(transaction.BlockHeight, "0x", "", -1), 16, 64)
 					if err != nil {
 						zap.S().Warn(
-							"Routine=", "Extractor, ",
-							"Step=", "Parse Transaction Block Number, ",
-							"TransactionHash=", transaction.TxHash, ", ",
-							"TransactionBlockNumber=", transactionBlockNumber, ", ",
-							"Error=", err.Error(),
+							"Routine=", "Extractor",
+							", Step=", "Parse Transaction Block Number",
+							", TransactionHash=", transaction.TxHash,
+							", TransactionBlockNumber=", transactionBlockNumber,
+							", Error=", err.Error(),
 						)
 						continue
 					}
@@ -302,6 +322,16 @@ func (e Extractor) start(isHead bool) {
 			if len(blockNumberQueue) == 0 {
 				if isHead == true {
 					// Head extractor
+					zap.S().Info(
+						"Routine=", "Extractor",
+						", Step=", "Finished claim",
+						", Job Hash=", claim.JobHash,
+						", Claim Index=", claim.ClaimIndex,
+						", Start=", claim.StartBlockNumber,
+						", End=", claim.EndBlockNumber,
+						" - Finished claim",
+					)
+
 					// Add next block to queue
 					claim.StartBlockNumber = claim.EndBlockNumber
 					claim.EndBlockNumber = claim.StartBlockNumber + int64(config.Config.MaxClaimSize)
@@ -316,6 +346,15 @@ func (e Extractor) start(isHead bool) {
 				} else {
 					// Claim extracted
 					// Done with claim
+					zap.S().Info(
+						"Routine=", "Extractor",
+						", Step=", "Finished claim",
+						", Job Hash=", claim.JobHash,
+						", Claim Index=", claim.ClaimIndex,
+						", Start=", claim.StartBlockNumber,
+						", End=", claim.EndBlockNumber,
+						" - Finished claim",
+					)
 					break
 				}
 			}
@@ -329,9 +368,9 @@ func (e Extractor) start(isHead bool) {
 			err = crud.GetClaimCrud().UpdateOneComplete(claim)
 			if err != nil {
 				zap.S().Warn(
-					"Routine=", "Extractor, ",
-					"Step=", "Commit claim, ",
-					"Error=", err.Error(),
+					"Routine=", "Extractor",
+					", Step=", "Commit claim",
+					", Error=", err.Error(),
 					" - Sleeping 1 second...",
 				)
 				time.Sleep(1 * time.Second)
