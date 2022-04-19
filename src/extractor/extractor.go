@@ -136,18 +136,16 @@ func (e Extractor) start(isHead bool) {
 			// Check blocks //
 			//////////////////
 			rawBlocks := []service.IconNodeResponseGetBlockByHeightResult{}
+			waitingBlockNumber := int64(-1)
 			for iB, block := range rawBlocksAll {
 				if block.Error != nil {
 					// Error getting block, send block number back to queue
 					blockNumberQueue = append(blockNumberQueue, blockNumbers[iB])
 
 					if block.Error.Code == -31004 {
-						zap.S().Info(
-							"Routine=", "Extractor, ",
-							"Step=", "Check block, ",
-							"BlockNumber=", blockNumbers[iB], ", ",
-							" - Waiting for block to be created...",
-						)
+						if waitingBlockNumber == -1 || waitingBlockNumber > blockNumbers[iB] {
+							waitingBlockNumber = blockNumbers[iB]
+						}
 					} else {
 						zap.S().Warn(
 							"Routine=", "Extractor, ",
@@ -161,6 +159,15 @@ func (e Extractor) start(isHead bool) {
 					// Success
 					rawBlocks = append(rawBlocks, *block.Result)
 				}
+			}
+			if waitingBlockNumber != -1 {
+				zap.S().Info(
+					"Routine=", "Extractor, ",
+					"Step=", "Check block, ",
+					"BlockNumber=", waitingBlockNumber, ", ",
+					" - Waiting for block to be created...",
+				)
+				time.Sleep(1 * time.Second)
 			}
 
 			//////////////////////
@@ -205,18 +212,14 @@ func (e Extractor) start(isHead bool) {
 				// Check transactions //
 				////////////////////////
 				rawTransactions := []service.IconNodeResponseGetTransactionByHashResult{}
+				waitingTransactionHash := ""
 				for iT, transaction := range rawTransactionsAll {
 					if transaction.Error != nil {
 						// Error getting transaction, send transaction hash back to queue
 						transactionHashQueue = append(transactionHashQueue, transactionHashes[iT])
 
 						if transaction.Error.Code == -31004 || transaction.Error.Code == -31003 {
-							zap.S().Info(
-								"Routine=", "Extractor, ",
-								"Step=", "Check transaction, ",
-								"BlockNumber=", transactionHashes[iT], ", ",
-								" - Waiting for transaction to be created...",
-							)
+							waitingTransactionHash = transactionHashes[iT]
 						} else {
 
 							zap.S().Warn(
@@ -231,6 +234,15 @@ func (e Extractor) start(isHead bool) {
 						// Success
 						rawTransactions = append(rawTransactions, *transaction.Result)
 					}
+				}
+				if waitingTransactionHash != "" {
+					zap.S().Info(
+						"Routine=", "Extractor, ",
+						"Step=", "Check transaction, ",
+						"BlockNumber=", waitingTransactionHash, ", ",
+						" - Waiting for transaction to be created...",
+					)
+					time.Sleep(1 * time.Second)
 				}
 
 				////////////////////////////////
