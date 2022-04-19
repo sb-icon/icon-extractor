@@ -66,7 +66,7 @@ func (m *ClaimCrud) SelectOneClaim() (*models.Claim, error) {
 		tx = tx.Model(&[]models.Claim{})
 
 		// SELECT
-		tx = tx.Raw("SELECT * FROM claims WHERE is_claimed = ? FOR UPDATE NOWAIT", false).Scan(claim)
+		tx = tx.Raw("SELECT * FROM claims WHERE is_claimed = ? AND is_head = ? FOR UPDATE NOWAIT", false, false).Scan(claim)
 		if tx.Error != nil {
 			// Rollback
 			return tx.Error
