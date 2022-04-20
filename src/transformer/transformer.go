@@ -170,23 +170,23 @@ func startTransformer() {
 			}
 		}
 
-		//////////////////
-		// Check Errors //
-		//////////////////
-		if errFlag != nil {
-			messageKey := errFlag.Error()
-			messageValue, _ := json.Marshal(block)
-
-			kafkaMessage := &sarama.ProducerMessage{
-				Topic:     config.Config.KafkaDeadMessageTopic,
-				Partition: -1,
-				Key:       sarama.StringEncoder(messageKey),
-				Value:     sarama.StringEncoder(string(messageValue)),
-			}
-
-			kafka.KafkaTopicProducers[config.Config.KafkaDeadMessageTopic].TopicChan <- kafkaMessage
-			continue
-		}
+		////////////////////
+		//// Check Errors //
+		////////////////////
+		//if errFlag != nil {
+		//	messageKey := errFlag.Error()
+		//	messageValue, _ := json.Marshal(block)
+		//
+		//	kafkaMessage := &sarama.ProducerMessage{
+		//		Topic:     config.Config.KafkaDeadMessageTopic,
+		//		Partition: -1,
+		//		Key:       sarama.StringEncoder(messageKey),
+		//		Value:     sarama.StringEncoder(string(messageValue)),
+		//	}
+		//
+		//	kafka.KafkaTopicProducers[config.Config.KafkaDeadMessageTopic].TopicChan <- kafkaMessage
+		//	continue
+		//}
 
 		/////////////////
 		// Verify Data //
