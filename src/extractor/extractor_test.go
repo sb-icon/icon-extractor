@@ -19,15 +19,20 @@ func init() {
 	logging.Init()
 }
 
-func TestStart(t *testing.T) {
+func TestStartHead(t *testing.T) {
 	assert := assert.New(t)
+
+	config.ReadEnvironment()
+
+	config.Config.IconNodeServiceMaxBatchSize = 5
+	config.Config.MaxClaimSize = 5
 
 	blockOutputChannel := make(chan service.IconNodeResponseGetBlockByHeightResult)
 
 	e := Extractor{
 		blockOutputChannel,
 	}
-	e.Start(true)
+	e.start(true)
 
 	block := <-blockOutputChannel
 

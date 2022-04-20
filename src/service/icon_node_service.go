@@ -31,6 +31,7 @@ func IconNodeServiceGetBlockByHeight(heights []int64) ([]IconNodeResponseGetBloc
 	url := config.Config.IconNodeServiceURL
 	method := "POST"
 
+	// Create json string payload with list of get block requests for batch
 	payload := "["
 	for i, height := range heights {
 
@@ -110,6 +111,7 @@ func IconNodeServiceGetTransactionByHash(hashes []string) ([]IconNodeResponseGet
 	url := config.Config.IconNodeServiceURL
 	method := "POST"
 
+	// Create json string payload with list of get transformer requests for batch
 	payload := "["
 	for i, hash := range hashes {
 
