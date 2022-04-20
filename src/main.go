@@ -16,7 +16,7 @@ func main() {
 	logging.Init()
 
 	kafka.StartProducers()
-	transformer.StartTransformer()
+	transformer.StartTransformer() // Need to start before extractor so the RawBlockChannel is opened
 	extractor.Start()
 
 	api.Start()

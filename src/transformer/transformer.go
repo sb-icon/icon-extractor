@@ -24,6 +24,8 @@ func StartTransformer() {
 
 func startTransformer() {
 
+	// TODO: Improve error handling by breaking up the function into
+	//  Need to be able to run in function so that the err var can be in scope within the loop
 	for {
 
 		///////////////
@@ -32,6 +34,7 @@ func startTransformer() {
 		rawBlock := <-RawBlockChannel
 		block := &models.BlockETL{}
 
+		//var errFlag error = nil
 		/////////////////
 		// Parse Block //
 		/////////////////
@@ -167,6 +170,24 @@ func startTransformer() {
 			}
 		}
 
+		//////////////////
+		// Check Errors //
+		//////////////////
+		if errFlag != nil {
+			messageKey := errFlag.Error()
+			messageValue, _ := json.Marshal(block)
+
+			kafkaMessage := &sarama.ProducerMessage{
+				Topic:     config.Config.KafkaDeadMessageTopic,
+				Partition: -1,
+				Key:       sarama.StringEncoder(messageKey),
+				Value:     sarama.StringEncoder(string(messageValue)),
+			}
+
+			kafka.KafkaTopicProducers[config.Config.KafkaDeadMessageTopic].TopicChan <- kafkaMessage
+			continue
+		}
+
 		/////////////////
 		// Verify Data //
 		/////////////////
@@ -219,3 +240,17 @@ func startTransformer() {
 		kafka.KafkaTopicProducers[config.Config.KafkaBlocksTopic].TopicChan <- kafkaMessage
 	}
 }
+
+//func handleParseErrorToDlq(err error, block *models.BlockETL) {
+//	messageKey := err.Error()
+//	messageValue, _ := json.Marshal(block)
+//
+//	kafkaMessage := &sarama.ProducerMessage{
+//		Topic:     config.Config.KafkaDeadMessageTopic,
+//		Partition: -1,
+//		Key:       sarama.StringEncoder(messageKey),
+//		Value:     sarama.StringEncoder(string(messageValue)),
+//	}
+//
+//	kafka.KafkaTopicProducers[config.Config.KafkaDeadMessageTopic].TopicChan <- kafkaMessage
+//}

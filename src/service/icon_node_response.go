@@ -21,9 +21,9 @@ type IconNodeResponseGetBlockByHeightResult struct {
 }
 
 type IconNodeResponseGetBlockByHeightTransaction struct {
-	Data               interface{}                                `json:"data"`
+	Data               interface{}                                `json:"data"` // Data can be int or string. transformer will handle this
 	DataType           string                                     `json:"dataType"`
-	Timestamp          interface{}                                `json:"timestamp"`
+	Timestamp          interface{}                                `json:"timestamp"` // Timestamp can be float64 or string. transformer will handle this
 	TxHashV1           string                                     `json:"tx_hash"`
 	TxHashV3           string                                     `json:"txHash"`
 	TxHash             string                                     // Normalize from V1 and V3

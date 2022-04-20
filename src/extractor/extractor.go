@@ -32,7 +32,8 @@ func Start() {
 				transformer.RawBlockChannel,
 			}
 
-			e.Start(false)
+			//e.Start(false)
+			go e.start(false)
 		}
 	}
 
@@ -46,17 +47,12 @@ func Start() {
 		e := Extractor{
 			transformer.RawBlockChannel,
 		}
-		e.Start(true)
+		go e.start(true)
 	}
 }
 
 type Extractor struct {
 	blockOutput chan service.IconNodeResponseGetBlockByHeightResult // Output
-}
-
-func (e Extractor) Start(isHead bool) {
-
-	go e.start(isHead)
 }
 
 func (e Extractor) start(isHead bool) {
@@ -134,6 +130,7 @@ func (e Extractor) start(isHead bool) {
 
 		// Loop through block numbers in queue
 		for {
+			// Handles case when at end of block range and batch size is more than number of blocks left to process
 			batchSize := int(math.Min(float64(config.Config.IconNodeServiceMaxBatchSize), float64(len(blockNumberQueue))))
 
 			blockNumbers := blockNumberQueue[0:batchSize]
@@ -162,7 +159,11 @@ func (e Extractor) start(isHead bool) {
 					// Error getting block, send block number back to queue
 					blockNumberQueue = append(blockNumberQueue, blockNumbers[iB])
 
+					// Error happens when request is valid but block is not created yet
 					if block.Error.Code == -31004 {
+						// Checks if waitingBlockNumber has been toggled and if it hasn't, initialize it
+						// Or check if it has been set, is the waiting block number lower than what has been set
+						// This triggers a sleep so that we don't blast our node when we're at the head
 						if waitingBlockNumber == -1 || waitingBlockNumber > blockNumbers[iB] {
 							waitingBlockNumber = blockNumbers[iB]
 						}
@@ -174,6 +175,8 @@ func (e Extractor) start(isHead bool) {
 							", ErrorCode=", block.Error.Code,
 							", ErrorMessage=", block.Error.Message,
 						)
+						// Sleep a bit if we get an error
+						time.Sleep(10 * time.Millisecond)
 					}
 				} else {
 					// Success
@@ -187,7 +190,7 @@ func (e Extractor) start(isHead bool) {
 					", BlockNumber=", waitingBlockNumber,
 					" - Waiting for block to be created...",
 				)
-				time.Sleep(1 * time.Second)
+				time.Sleep(250 * time.Millisecond)
 			}
 
 			//////////////////////
@@ -199,6 +202,7 @@ func (e Extractor) start(isHead bool) {
 				for iT, transaction := range block.ConfirmedTransactionList {
 					// normalize
 					hash := ""
+					// Hash formatting changed over time v1 / v2
 					if transaction.TxHashV1 != "" {
 						hash = "0x" + transaction.TxHashV1
 					} else if transaction.TxHashV3 != "" {
@@ -238,6 +242,8 @@ func (e Extractor) start(isHead bool) {
 						// Error getting transaction, send transaction hash back to queue
 						transactionHashQueue = append(transactionHashQueue, transactionHashes[iT])
 
+						// Checks if we are at head.  Same sleep logic as what is in block but this time for Txs
+						// Trigger sleep if we are at head
 						if transaction.Error.Code == -31004 || transaction.Error.Code == -31003 {
 							waitingTransactionHash = transactionHashes[iT]
 						} else {
@@ -249,6 +255,8 @@ func (e Extractor) start(isHead bool) {
 								", ErrorCode=", transaction.Error.Code,
 								", ErrorMessage=", transaction.Error.Message,
 							)
+							// Sleep a bit if we get an error
+							time.Sleep(10 * time.Millisecond)
 						}
 					} else {
 						// Success
@@ -262,7 +270,7 @@ func (e Extractor) start(isHead bool) {
 						", BlockNumber=", waitingTransactionHash,
 						" - Waiting for transaction to be created...",
 					)
-					time.Sleep(1 * time.Second)
+					time.Sleep(100 * time.Millisecond)
 				}
 
 				////////////////////////////////
