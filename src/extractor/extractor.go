@@ -135,6 +135,12 @@ func (e Extractor) start(isHead bool) {
 
 			blockNumbers := blockNumberQueue[0:batchSize]
 
+			zap.S().Debug(
+				"Routine=", "Extractor",
+				", Step=", "Create batch numbers",
+				", BlockNumbers=", blockNumbers,
+			)
+
 			////////////////
 			// Get blocks //
 			////////////////
