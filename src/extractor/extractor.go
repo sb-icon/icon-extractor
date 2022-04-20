@@ -387,4 +387,10 @@ func (e Extractor) start(isHead bool) {
 			break
 		}
 	}
+
+	zap.S().Debug(
+		"Routine=", "Extractor",
+		", Step=", "Exiting",
+		" - Exiting extractor",
+	)
 }
