@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"time"
 
 	"github.com/kelseyhightower/envconfig"
 )
@@ -44,8 +45,9 @@ type configType struct {
 	LogIsDevelopment bool   `envconfig:"LOG_IS_DEVELOPMENT" required:"false" default:"true"`
 
 	// Icon node service
-	IconNodeServiceURL          string `envconfig:"ICON_NODE_SERVICE_URL" required:"false" default:"https://ctz.solidwallet.io/api/v3"`
-	IconNodeServiceMaxBatchSize int    `envconfig:"ICON_NODE_SERVICE_MAX_BATCH_SIZE" required:"false" default:"10"`
+	IconNodeServiceURL          string        `envconfig:"ICON_NODE_SERVICE_URL" required:"false" default:"https://ctz.solidwallet.io/api/v3"`
+	IconNodeServiceMaxBatchSize int           `envconfig:"ICON_NODE_SERVICE_MAX_BATCH_SIZE" required:"false" default:"10"`
+	HttpClientTimeout           time.Duration `envconfig:"HTTP_CLIENT_TIMEOUT" required:"false" default:"5s"`
 
 	// Kafka
 	KafkaBrokerURL         string `envconfig:"KAFKA_BROKER_URL" required:"false" default:"localhost:29092"`

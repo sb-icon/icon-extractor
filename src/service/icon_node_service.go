@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/sudoblockio/icon-extractor/config"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/sudoblockio/icon-extractor/config"
 )
 
 func IconNodeServiceGetBlockByHeight(heights []int64) ([]IconNodeResponseGetBlockByHeight, error) {
@@ -52,7 +51,9 @@ func IconNodeServiceGetBlockByHeight(heights []int64) ([]IconNodeResponseGetBloc
 	payload += "]"
 
 	// Create http client
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: config.Config.HttpClientTimeout,
+	}
 	req, err := http.NewRequest(method, url, strings.NewReader(payload))
 	if err != nil {
 		return blocks, err
