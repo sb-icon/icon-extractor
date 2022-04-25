@@ -155,6 +155,12 @@ func (e Extractor) start(isHead bool) {
 				continue
 			}
 
+			zap.S().Debug(
+				"Routine=", "Extractor",
+				", Step=", "Get blocks",
+				", Num Blocks=", len(rawBlocksAll),
+			)
+
 			//////////////////
 			// Check blocks //
 			//////////////////
@@ -199,6 +205,11 @@ func (e Extractor) start(isHead bool) {
 				time.Sleep(250 * time.Millisecond)
 			}
 
+			zap.S().Debug(
+				"Routine=", "Extractor",
+				", Step=", "Checked blocks",
+			)
+
 			//////////////////////
 			// Get transactions //
 			//////////////////////
@@ -237,6 +248,12 @@ func (e Extractor) start(isHead bool) {
 					)
 					continue
 				}
+
+				zap.S().Debug(
+					"Routine=", "Extractor",
+					", Step=", "Get transactions",
+					", Num Transactions=", len(rawTransactionsAll),
+				)
 
 				////////////////////////
 				// Check transactions //
@@ -278,6 +295,11 @@ func (e Extractor) start(isHead bool) {
 					)
 					time.Sleep(100 * time.Millisecond)
 				}
+
+				zap.S().Debug(
+					"Routine=", "Extractor",
+					", Step=", "Checked transactions",
+				)
 
 				////////////////////////////////
 				// Add transactions to blocks //
@@ -328,6 +350,11 @@ func (e Extractor) start(isHead bool) {
 			for _, block := range rawBlocks {
 				e.blockOutput <- block
 			}
+
+			zap.S().Debug(
+				"Routine=", "Extractor",
+				", Step=", "Send blocks to transformer",
+			)
 
 			/////////////////
 			// Check queue //
@@ -395,4 +422,10 @@ func (e Extractor) start(isHead bool) {
 			break
 		}
 	}
+
+	zap.S().Debug(
+		"Routine=", "Extractor",
+		", Step=", "Exiting",
+		" - Exiting extractor",
+	)
 }

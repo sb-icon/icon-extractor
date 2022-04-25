@@ -32,7 +32,7 @@ func TestStartHead(t *testing.T) {
 	e := Extractor{
 		blockOutputChannel,
 	}
-	e.start(true)
+	go e.start(true)
 
 	block := <-blockOutputChannel
 

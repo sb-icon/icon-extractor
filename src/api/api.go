@@ -8,7 +8,6 @@ import (
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	_ "github.com/sudoblockio/icon-extractor/api/docs" // import for swagger docs
@@ -24,14 +23,6 @@ import (
 func Start() {
 
 	app := fiber.New()
-
-	// Logging middleware
-	app.Use(func(c *fiber.Ctx) error {
-		zap.S().Info(c.Method(), " ", c.Path())
-
-		// Go to next middleware:
-		return c.Next()
-	})
 
 	// CORS Middleware
 	app.Use(cors.New(cors.Config{
