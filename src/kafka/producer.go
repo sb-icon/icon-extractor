@@ -59,7 +59,7 @@ func (k *KafkaTopicProducer) produceTopic() {
 	// check if topic is already made
 	topics, err := admin.ListTopics()
 	if _, ok := topics[k.TopicName]; ok == false {
-
+		zap.S().Info("Creating topics: ", k.TopicName)
 		// Create topic
 		err = admin.CreateTopic(k.TopicName, &sarama.TopicDetail{
 			NumPartitions:     int32(k.TopicPartitions),
