@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"errors"
 	"reflect"
 	"sync"
 
@@ -90,6 +91,11 @@ func (m *ClaimCrud) SelectOneClaim() (*models.Claim, error) {
 		// Failed
 		return nil, err
 	}
+	if claim.JobHash == "" {
+		// Failed
+		return nil, errors.New("No claim found")
+	}
+
 	return claim, nil
 }
 
