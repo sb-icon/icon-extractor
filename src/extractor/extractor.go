@@ -94,7 +94,7 @@ func (e Extractor) start(isHead bool) {
 			// Claim extractor
 			claim, err = crud.GetClaimCrud().SelectOneClaim()
 			if err != nil {
-				zap.S().Warn(
+				zap.S().Info(
 					"Routine=", "Extractor",
 					", Step=", "Get claim",
 					", Error=", err.Error(),
