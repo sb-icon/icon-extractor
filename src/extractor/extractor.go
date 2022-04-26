@@ -109,6 +109,7 @@ func (e Extractor) start(isHead bool) {
 					", Step=", "Get claim",
 					" - Start block number greater than end block number...skipping claim",
 				)
+				time.Sleep(50 * time.Millisecond)
 				continue
 			}
 
@@ -152,6 +153,7 @@ func (e Extractor) start(isHead bool) {
 					", BlockNumbers=", blockNumbers,
 					", Error=", err.Error(),
 				)
+				time.Sleep(50 * time.Millisecond)
 				continue
 			}
 
@@ -246,6 +248,7 @@ func (e Extractor) start(isHead bool) {
 						", TransactionHashes=", transactionHashes,
 						", Error=", err.Error(),
 					)
+					time.Sleep(50 * time.Millisecond)
 					continue
 				}
 
@@ -316,6 +319,7 @@ func (e Extractor) start(isHead bool) {
 							", TransactionBlockNumber=", transactionBlockNumber,
 							", Error=", err.Error(),
 						)
+						time.Sleep(50 * time.Millisecond)
 						continue
 					}
 
