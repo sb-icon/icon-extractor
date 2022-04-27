@@ -64,6 +64,12 @@ func (k *KafkaTopicProducer) produceTopic() {
 		err = admin.CreateTopic(k.TopicName, &sarama.TopicDetail{
 			NumPartitions:     int32(k.TopicPartitions),
 			ReplicationFactor: int16(config.Config.KafkaReplicationFactor),
+
+			// Can add and modify many configs for topic, refer to:
+			// https://docs.confluent.io/platform/current/installation/configuration/topic-configs.html
+			ConfigEntries: map[string]*string{
+				"max.message.bytes": &config.Config.KafkaMaxMessageBytes,
+			},
 		}, false)
 		if err != nil {
 			zap.S().Warn("Error while creating topic: ", err.Error())
