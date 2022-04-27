@@ -68,6 +68,7 @@ func (k *KafkaTopicProducer) produceTopic() {
 			// Can add and modify many configs for topic, refer to:
 			// https://docs.confluent.io/platform/current/installation/configuration/topic-configs.html
 			ConfigEntries: map[string]*string{
+				"compression.type":  &config.Config.KafkaCompressionType,
 				"max.message.bytes": &config.Config.KafkaMaxMessageBytes,
 			},
 		}, false)
