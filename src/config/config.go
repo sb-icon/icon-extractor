@@ -54,7 +54,7 @@ type configType struct {
 	KafkaBlocksPartitions  int    `envconfig:"KAFKA_PRODUCER_PARTITIONS" required:"false" default:"12"`
 	KafkaDeadMessageTopic  string `envconfig:"KAFKA_DEAD_MESSAGE_TOPIC" required:"false" default:"icon-blocks-dead"`
 	KafkaReplicationFactor int    `envconfig:"KAFKA_REPLICATION_FACTOR" required:"false" default:"1"`
-	KafkaMaxMessageBytes   string `envconfig:"KAFKA_MAX_MESSAGE_BYTES" required:"false" default:"	1048588"`
+	KafkaMaxMessageBytes   string `envconfig:"KAFKA_MAX_MESSAGE_BYTES" required:"false" default:"16000000"`
 
 	// DB
 	DbDriver             string `envconfig:"DB_DRIVER" required:"false" default:"postgres"`
