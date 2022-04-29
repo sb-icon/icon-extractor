@@ -94,7 +94,7 @@ func (k *KafkaTopicProducer) produceTopic() {
 
 		partition, offset, err := producer.SendMessage(topicMessage)
 		if err != nil {
-			zap.S().Warn("Producer ", k.TopicName, ": Err sending message=", err.Error())
+			zap.S().Warn("Topic=", k.TopicName, " Partition=", partition, " offset=", offset, " key=", string(topicMessageKey), " - Error: ", err.Error())
 		}
 
 		topicMessageKey, _ := topicMessage.Key.Encode()
