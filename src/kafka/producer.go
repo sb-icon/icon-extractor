@@ -93,11 +93,11 @@ func (k *KafkaTopicProducer) produceTopic() {
 		topicMessage := <-k.TopicChan
 
 		partition, offset, err := producer.SendMessage(topicMessage)
+
+		topicMessageKey, _ := topicMessage.Key.Encode()
 		if err != nil {
 			zap.S().Warn("Topic=", k.TopicName, " Partition=", partition, " offset=", offset, " key=", string(topicMessageKey), " - Error: ", err.Error())
 		}
-
-		topicMessageKey, _ := topicMessage.Key.Encode()
 		zap.S().Debug("Topic=", k.TopicName, " Partition=", partition, " offset=", offset, " key=", string(topicMessageKey), " - Produced message to kafka")
 	}
 }
