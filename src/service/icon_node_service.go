@@ -133,7 +133,9 @@ func IconNodeServiceGetTransactionByHash(hashes []string) ([]IconNodeResponseGet
 	payload += "]"
 
 	// Create http client
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: config.Config.HttpClientTimeout,
+	}
 	req, err := http.NewRequest(method, url, strings.NewReader(payload))
 	if err != nil {
 		return transactions, err
