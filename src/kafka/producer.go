@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -80,6 +81,10 @@ func (k *KafkaTopicProducer) produceTopic() {
 	/////////////////////
 	// Create producer //
 	/////////////////////
+	saramaConfig.Producer.MaxMessageBytes, err = strconv.Atoi(config.Config.KafkaMaxMessageBytes)
+	if err != nil {
+		zap.S().Fatal(err)
+	}
 	saramaConfig.Producer.Partitioner = sarama.NewRandomPartitioner
 	saramaConfig.Producer.RequiredAcks = sarama.WaitForAll
 	saramaConfig.Producer.Return.Successes = true
@@ -97,6 +102,10 @@ func (k *KafkaTopicProducer) produceTopic() {
 		topicMessageKey, _ := topicMessage.Key.Encode()
 		if err != nil {
 			zap.S().Warn("Topic=", k.TopicName, " Partition=", partition, " offset=", offset, " key=", string(topicMessageKey), " - Error: ", err.Error())
+			//// TODO: Create table in PG and push bad blocks
+			//problemBlock := &models.ProblemBlock{}
+			//problemBlock.BlockNumber = topicMessage
+			//crud.GetProblemBlockCrud().LoaderChannel <- problemBlock
 		}
 		zap.S().Debug("Topic=", k.TopicName, " Partition=", partition, " offset=", offset, " key=", string(topicMessageKey), " - Produced message to kafka")
 	}

@@ -15,7 +15,7 @@ type configType struct {
 
 	// Claim Extractors
 	StartClaimExtractors bool `envconfig:"START_CLAIM_EXTRACTORS" required:"false" default:"false"`
-	NumClaimExtractors   int  `envconfig:"NUM_EXTRACTORS" required:"false" default:"4"`
+	NumClaimExtractors   int  `envconfig:"NUM_EXTRACTORS" required:"false" default:"1"`
 	MaxClaimSize         int  `envconfig:"MAX_CLAIM_SIZE" required:"false" default:"1000"`
 
 	// Head Extractor
@@ -23,6 +23,7 @@ type configType struct {
 	HeadExtractorStartBlock int  `envconfig:"HEAD_EXTRACTOR_START_BLOCK" required:"false" default:"1"`
 
 	// Insert a job
+	// NOTE will duplicate on restart
 	InsertExtractorJob                 bool   `envconfig:"INSERT_EXTRACTOR_JOB" required:"false" default:"false"`
 	InsertExtractorJobStartBlockNumber int    `envconfig:"INSERT_EXTRACTOR_JOB_START_BLOCK_NUMBER" required:"false" default:"1"`
 	InsertExtractorJobEndBlockNumber   int    `envconfig:"INSERT_EXTRACTOR_JOB_END_BLOCK_NUMBER" required:"false" default:"400000"`
@@ -44,7 +45,7 @@ type configType struct {
 	LogIsDevelopment bool   `envconfig:"LOG_IS_DEVELOPMENT" required:"false" default:"true"`
 
 	// Icon node service
-	IconNodeServiceURL          string        `envconfig:"ICON_NODE_SERVICE_URL" required:"false" default:"https://ctz.solidwallet.io/api/v3"`
+	IconNodeServiceURL          string        `envconfig:"ICON_NODE_SERVICE_URL" required:"false" default:"https://api.icon.community/api/v3"`
 	IconNodeServiceMaxBatchSize int           `envconfig:"ICON_NODE_SERVICE_MAX_BATCH_SIZE" required:"false" default:"10"`
 	HttpClientTimeout           time.Duration `envconfig:"HTTP_CLIENT_TIMEOUT" required:"false" default:"5s"`
 
@@ -55,7 +56,7 @@ type configType struct {
 	KafkaDeadMessageTopic  string `envconfig:"KAFKA_DEAD_MESSAGE_TOPIC" required:"false" default:"icon-blocks-dead"`
 	KafkaReplicationFactor int    `envconfig:"KAFKA_REPLICATION_FACTOR" required:"false" default:"1"`
 	KafkaCompressionType   string `envconfig:"KAFKA_COMPRESSION_TYPE" required:"false" default:"uncompressed"`
-	KafkaMaxMessageBytes   string `envconfig:"KAFKA_MAX_MESSAGE_BYTES" required:"false" default:"64000000"`
+	KafkaMaxMessageBytes   string `envconfig:"KAFKA_MAX_MESSAGE_BYTES" required:"false" default:"67109632"`
 
 	// DB
 	DbDriver             string `envconfig:"DB_DRIVER" required:"false" default:"postgres"`
