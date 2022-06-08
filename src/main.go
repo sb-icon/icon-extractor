@@ -15,11 +15,11 @@ func main() {
 
 	logging.Init()
 
+	api.Start()
+
 	kafka.StartProducers()
 	transformer.StartTransformer() // Need to start before extractor so the RawBlockChannel is opened
 	extractor.Start()
-
-	api.Start()
 
 	global.WaitShutdownSig()
 }
