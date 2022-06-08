@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"go.uber.org/zap"
 	"math"
 	"time"
 
@@ -61,7 +62,11 @@ func Start() {
 			job.Hash = config.Config.InsertExtractorJobHash
 
 			// Insert to DB
-			crud.GetJobCrud().LoaderChannel <- job
+			err = crud.GetJobCrud().UpsertOne(job)
+			if err != nil {
+				// Postgres error
+				zap.S().Fatal("Hash=", job.Hash, " - Error: ", err.Error())
+			}
 
 			// Create claims
 			for i := 0; i < int(job.NumClaims); i++ {
@@ -80,7 +85,11 @@ func Start() {
 				}
 
 				// Insert to DB
-				crud.GetClaimCrud().LoaderChannel <- claim
+				err = crud.GetClaimCrud().UpsertOne(claim)
+				if err != nil {
+					// Postgres error
+					zap.S().Fatal("Claim=", claim.JobHash, "Error: ", err.Error())
+				}
 			}
 		}
 	}
