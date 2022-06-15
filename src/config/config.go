@@ -57,6 +57,9 @@ type configType struct {
 	KafkaReplicationFactor int    `envconfig:"KAFKA_REPLICATION_FACTOR" required:"false" default:"1"`
 	KafkaCompressionType   string `envconfig:"KAFKA_COMPRESSION_TYPE" required:"false" default:"uncompressed"`
 	KafkaMaxMessageBytes   string `envconfig:"KAFKA_MAX_MESSAGE_BYTES" required:"false" default:"67109632"`
+	KafkaCleanupPolicy     string `envconfig:"KAFKA_CLEANUP_POLICY" required:"false" default:"compact"`
+	KafkaRetentionMs       string `envconfig:"KAFKA_RETENTION_MS" required:"false" default:"-1"`
+	KafkaRetentionBytes    string `envconfig:"KAFKA_RETENTION_BYTES" required:"false" default:"-1"`
 
 	// DB
 	DbDriver             string `envconfig:"DB_DRIVER" required:"false" default:"postgres"`

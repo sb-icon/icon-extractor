@@ -71,6 +71,9 @@ func (k *KafkaTopicProducer) produceTopic() {
 			ConfigEntries: map[string]*string{
 				"compression.type":  &config.Config.KafkaCompressionType,
 				"max.message.bytes": &config.Config.KafkaMaxMessageBytes,
+				"cleanup.policy":    &config.Config.KafkaCleanupPolicy,
+				"retention.bytes":   &config.Config.KafkaRetentionBytes,
+				"retention.ms":      &config.Config.KafkaRetentionMs,
 			},
 		}, false)
 		if err != nil {
