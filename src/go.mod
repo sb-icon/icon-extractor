@@ -6,7 +6,7 @@ require (
 	github.com/Shopify/sarama v1.31.1
 	github.com/arsmn/fiber-swagger/v2 v2.20.0
 	github.com/cenkalti/backoff/v4 v4.1.2
-	github.com/gofiber/fiber/v2 v2.20.2
+	github.com/gofiber/fiber/v2 v2.43.0
 	github.com/golang/protobuf v1.5.2
 	github.com/infobloxopen/atlas-app-toolkit v1.1.2
 	github.com/infobloxopen/protoc-gen-gorm v1.1.0
