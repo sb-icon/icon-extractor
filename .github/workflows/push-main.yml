@@ -76,42 +76,15 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-#          - cluster: dev-lax
-#            network_name: mainnet
-#            network_version: v2
-#          - cluster: dev-lax
-#            network_name: sejong
-#            network_version: v2
-#          - cluster: dev-lax
-#            network_name: lisbon
-#            network_version: v2
-#          - cluster: dev-lax
-#            network_name: berlin
-#            network_version: v2
-          - cluster: prod-sng
+          - cluster: cluster2
             network_name: mainnet
-            network_version: v2
-          - cluster: prod-sng
-            network_name: sejong
-            network_version: v2
-          - cluster: prod-sng
+            network_version: v4
+          - cluster: cluster2
             network_name: lisbon
-            network_version: v2
-          - cluster: prod-sng
+            network_version: v4
+          - cluster: cluster2
             network_name: berlin
-            network_version: v2
-          - cluster: prod-ams
-            network_name: mainnet
-            network_version: v2
-          - cluster: prod-ams
-            network_name: sejong
-            network_version: v2
-          - cluster: prod-ams
-            network_name: lisbon
-            network_version: v2
-          - cluster: prod-ams
-            network_name: berlin
-            network_version: v2
+            network_version: v4
 
     steps:
 
