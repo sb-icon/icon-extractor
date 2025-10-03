@@ -1,4 +1,4 @@
-module github.com/sudoblockio/icon-extractor
+module github.com/sb-icon/icon-extractor
 
 go 1.16
 

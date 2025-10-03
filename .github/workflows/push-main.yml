@@ -118,7 +118,7 @@ jobs:
       - name: Checkout charts repo
         uses: actions/checkout@v2
         with:
-          repository: sudoblockio/icon-charts
+          repository: sb-icon/icon-charts
           ref: main
           path: charts
           token: ${{ secrets.ICON_CHARTS_PAT }}
@@ -127,7 +127,7 @@ jobs:
         uses: fjogeleit/yaml-update-action@master
         with:
           workDir: charts
-          repository: sudoblockio/icon-charts
+          repository: sb-icon/icon-charts
           valueFile: 'deployments/${{ matrix.cluster }}/${{ matrix.network_name }}-${{ matrix.network_version }}/extractor/tags.yaml'
           propertyPath: 'image.tag'
           value: ${{needs.docker.outputs.tag}}

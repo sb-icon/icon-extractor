@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/sudoblockio/icon-extractor/api"
-	"github.com/sudoblockio/icon-extractor/config"
-	"github.com/sudoblockio/icon-extractor/extractor"
-	"github.com/sudoblockio/icon-extractor/global"
-	"github.com/sudoblockio/icon-extractor/kafka"
-	"github.com/sudoblockio/icon-extractor/logging"
-	"github.com/sudoblockio/icon-extractor/transformer"
+	"github.com/sb-icon/icon-extractor/api"
+	"github.com/sb-icon/icon-extractor/config"
+	"github.com/sb-icon/icon-extractor/extractor"
+	"github.com/sb-icon/icon-extractor/global"
+	"github.com/sb-icon/icon-extractor/kafka"
+	"github.com/sb-icon/icon-extractor/logging"
+	"github.com/sb-icon/icon-extractor/transformer"
 )
 
 func main() {

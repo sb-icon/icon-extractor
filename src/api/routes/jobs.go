@@ -10,9 +10,9 @@ import (
 	fiber "github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 
-	"github.com/sudoblockio/icon-extractor/config"
-	"github.com/sudoblockio/icon-extractor/crud"
-	"github.com/sudoblockio/icon-extractor/models"
+	"github.com/sb-icon/icon-extractor/config"
+	"github.com/sb-icon/icon-extractor/crud"
+	"github.com/sb-icon/icon-extractor/models"
 )
 
 type JobsBody struct {

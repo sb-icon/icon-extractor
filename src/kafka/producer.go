@@ -8,7 +8,7 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"go.uber.org/zap"
 
-	"github.com/sudoblockio/icon-extractor/config"
+	"github.com/sb-icon/icon-extractor/config"
 )
 
 type KafkaTopicProducer struct {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/sudoblockio/icon-extractor/config"
+	"github.com/sb-icon/icon-extractor/config"
 	"io/ioutil"
 	"net/http"
 	"strconv"

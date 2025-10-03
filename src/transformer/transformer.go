@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
-	"github.com/sudoblockio/icon-extractor/config"
-	"github.com/sudoblockio/icon-extractor/kafka"
-	"github.com/sudoblockio/icon-extractor/models"
-	"github.com/sudoblockio/icon-extractor/service"
+	"github.com/sb-icon/icon-extractor/config"
+	"github.com/sb-icon/icon-extractor/kafka"
+	"github.com/sb-icon/icon-extractor/models"
+	"github.com/sb-icon/icon-extractor/service"
 	"google.golang.org/protobuf/proto"
 )
 

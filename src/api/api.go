@@ -11,11 +11,11 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gorm.io/gorm"
 
-	_ "github.com/sudoblockio/icon-extractor/api/docs" // import for swagger docs
-	"github.com/sudoblockio/icon-extractor/api/routes"
-	"github.com/sudoblockio/icon-extractor/config"
-	"github.com/sudoblockio/icon-extractor/crud"
-	"github.com/sudoblockio/icon-extractor/models"
+	_ "github.com/sb-icon/icon-extractor/api/docs" // import for swagger docs
+	"github.com/sb-icon/icon-extractor/api/routes"
+	"github.com/sb-icon/icon-extractor/config"
+	"github.com/sb-icon/icon-extractor/crud"
+	"github.com/sb-icon/icon-extractor/models"
 )
 
 // @title Go api template docs

@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/sudoblockio/icon-extractor/config"
-	"github.com/sudoblockio/icon-extractor/logging"
-	"github.com/sudoblockio/icon-extractor/service"
+	"github.com/sb-icon/icon-extractor/config"
+	"github.com/sb-icon/icon-extractor/logging"
+	"github.com/sb-icon/icon-extractor/service"
 )
 
 // Runs before every test

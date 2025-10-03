@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/sudoblockio/icon-extractor/models"
+	"github.com/sb-icon/icon-extractor/models"
 )
 
 // ClaimCrud - type for claim table model
